@@ -61,7 +61,7 @@ button {
 <div class="products">
 
 <div class="product">
-<img src="https://via.placeholder.com/200">
+<img src="https://">
 <h3>فستان بناتي أنيق</h3>
 <p>80 ريال</p>
 <button onclick="order()">اطلب الآن</button>
@@ -74,7 +74,7 @@ button {
 <button onclick="order()">اطلب الآن</button>
 </div>
 
-<div class="product">
+<img src="https://images.unsplash.com/photo-1585487000160-6ebcfceb0d03">
 <img src="https://via.placeholder.com/200">
 <h3>فستان حفلات</h3>
 <p>150 ريال</p>
