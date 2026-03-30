@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kiwi Kids</title>
+<title>Kiwi Kids - Legend Store</title>
 
 <style>
 body {
@@ -17,18 +17,8 @@ header {
     background: #ffb6c1;
     padding: 15px;
     text-align: center;
-    font-size: 22px;
     color: white;
-}
-
-/* البحث */
-#search {
-    width: 90%;
-    margin-top: 10px;
-    padding: 8px;
-    border-radius: 10px;
-    border: none;
-    outline: none;
+    font-size: 20px;
 }
 
 /* المنتجات */
@@ -36,16 +26,13 @@ header {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
-    margin: 15px;
+    padding: 10px;
 }
 
 .product {
     border: 1px solid #eee;
-    border-radius: 10px;
+    border-radius: 12px;
     padding: 10px;
-    text-align: center;
-    position: relative;
-    background: #fff;
     cursor: pointer;
 }
 
@@ -54,271 +41,266 @@ header {
     border-radius: 10px;
 }
 
-.heart {
-    position: absolute;
-    top: 8px;
-    left: 8px;
-    font-size: 18px;
-    cursor: pointer;
+button {
+    background: #ff69b4;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    margin-top: 5px;
 }
 
 /* السلة */
-.cart-btn {
-    position: fixed;
-    top: 10px;
-    left: 10px;
-    background: white;
-    padding: 5px 10px;
-    border-radius: 20px;
-    cursor: pointer;
-    color: #ff69b4;
-}
-
 .cart {
     display: none;
     position: fixed;
     right: 0;
     top: 0;
-    width: 300px;
-    height: 100%;
-    background: #fff;
-    border-left: 2px solid #eee;
-    padding: 10px;
-    overflow-y: auto;
-}
-
-/* صفحة المنتج */
-#productPage {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
+    width: 320px;
     height: 100%;
     background: white;
-    padding: 15px;
-    overflow-y: auto;
-}
-
-#bigImg {
-    width: 100%;
-    border-radius: 10px;
-}
-
-.thumb {
-    width: 60px;
-    height: 60px;
-    border-radius: 6px;
-    cursor: pointer;
-    margin: 3px;
-}
-button {
-    background: #ff69b4;
-    border: none;
-    color: white;
+    border-left: 1px solid #ddd;
     padding: 10px;
-    border-radius: 5px;
-    margin-top: 8px;
+    overflow: auto;
+}
+
+/* Checkout */
+.checkout {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: white;
+    padding: 15px;
+}
+
+input, select {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+/* إشعار */
+#toast {
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 20px;
+    display: none;
+}
+
+/* زر سلة */
+.cart-btn {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    background: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    cursor: pointer;
 }
 </style>
 </head>
 
 <body>
 
-<header>
-Kiwi Kids 👗
-<input id="search" oninput="filterProducts()" placeholder="ابحث عن منتج...">
-</header>
+<header>Kiwi Kids 👑 LEGEND STORE</header>
 
-<div class="cart-btn" onclick="toggleCart()">
-🛒 (<span id="count">0</span>)
-</div>
+<div class="cart-btn" onclick="toggleCart()">🛒 (<span id="count">0</span>)</div>
 
 <!-- المنتجات -->
 <div class="products">
 
-<div class="product" data-name="فستان 1" onclick="openProduct('فستان 1',150,['dress1.jpg','dress2.jpg','dress3.jpg'])">
-<div class="heart" onclick="event.stopPropagation(); toggleFav(this)">🤍</div>
+<div class="product">
 <img src="dress1.jpg">
 <h3>فستان 1</h3>
 <p>150 ريال</p>
+<button onclick="addToCart('فستان 1',150)">إضافة</button>
 </div>
 
-<div class="product" data-name="فستان 2" onclick="openProduct('فستان 2',130,['dress2.jpg','dress1.jpg'])">
-<div class="heart" onclick="event.stopPropagation(); toggleFav(this)">🤍</div>
+<div class="product">
 <img src="dress2.jpg">
 <h3>فستان 2</h3>
 <p>130 ريال</p>
+<button onclick="addToCart('فستان 2',130)">إضافة</button>
 </div>
 
-<div class="product" data-name="فستان 3" onclick="openProduct('فستان 3',170,['dress3.jpg','dress1.jpg'])">
-<div class="heart" onclick="event.stopPropagation(); toggleFav(this)">🤍</div>
+<div class="product">
 <img src="dress3.jpg">
 <h3>فستان 3</h3>
 <p>170 ريال</p>
+<button onclick="addToCart('فستان 3',170)">إضافة</button>
 </div>
 
-</div>
-
-<!-- صفحة المنتج -->
-<div id="productPage">
-<button onclick="closePage()">رجوع</button>
-
-<img id="bigImg">
-
-<div id="thumbs" style="display:flex; gap:5px; margin-top:10px;"></div>
-
-<h2 id="pName"></h2>
-<p id="pPrice"></p>
-
-<button onclick="addDetailToCart()">إضافة للسلة</button>
 </div>
 
 <!-- السلة -->
 <div class="cart" id="cart"></div>
 
+<!-- Checkout -->
+<div class="checkout" id="checkout">
+
+<h2>إتمام الطلب 💳</h2>
+
+<input id="name" placeholder="الاسم">
+<input id="phone" placeholder="رقم الجوال">
+
+<select id="payment">
+<option>واتساب</option>
+<option>كاش عند الاستلام</option>
+<option>تحويل بنكي</option>
+</select>
+
+<input id="coupon" placeholder="كوبون خصم">
+
+<h3 id="total"></h3>
+
+<button onclick="confirmOrder()">تأكيد الطلب</button>
+<button onclick="closeCheckout()">إلغاء</button>
+
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
 <script>
 
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
-let favs = [];
-let selectedProduct = null;
+let discount = 0;
 
 /* حفظ */
-function saveCart(){
+function save(){
     localStorage.setItem("cart", JSON.stringify(cart));
 }
 
-/* إضافة للسلة */
+/* إضافة */
 function addToCart(name, price){
-    let found = cart.find(i => i.name === name);
+    let found = cart.find(i=>i.name===name);
 
-    if(found){
-        found.qty++;
-    } else {
-        cart.push({name, price, qty:1});
-    }
+    if(found) found.qty++;
+    else cart.push({name,price,qty:1});
 
-    updateCart();
+    update();
+    toast("تمت الإضافة 🛒");
 }
 
-/* تحديث السلة */
-function updateCart(){
+/* تحديث */
+function update(){
+    save();
     document.getElementById("count").innerText = cart.length;
-    saveCart();
     renderCart();
 }
 
 /* عرض السلة */
 function renderCart(){
     let box = document.getElementById("cart");
-    box.innerHTML = "<h3>السلة 🛒</h3>";
+    box.innerHTML = "<h3>السلة</h3>";
 
     let total = 0;
 
-    cart.forEach((item, i) => {
-        total += item.price * item.qty;
+    cart.forEach((i,idx)=>{
+        total += i.price*i.qty;
 
         box.innerHTML += `
         <div>
-        <b>${item.name}</b><br>
-        ${item.price} ريال
-
-        <div>
-        <button onclick="changeQty(${i},-1)">-</button>
-        ${item.qty}
-        <button onclick="changeQty(${i},1)">+</button>
-        <button onclick="removeItem(${i})">حذف</button>
-        </div>
+        ${i.name} x${i.qty}
+        <br>${i.price}
+        <button onclick="changeQty(${idx},-1)">-</button>
+        <button onclick="changeQty(${idx},1)">+</button>
         </div><hr>`;
     });
 
-    box.innerHTML += `<h4>الإجمالي: ${total}</h4>
-    <button onclick="checkout()">واتساب</button>`;
+    box.innerHTML += `
+    <h4>الإجمالي: ${total}</h4>
+    <button onclick="openCheckout(${total})">الدفع 💳</button>`;
 }
 
 /* كمية */
 function changeQty(i,v){
     cart[i].qty += v;
-    if(cart[i].qty <= 0) cart.splice(i,1);
-    updateCart();
+    if(cart[i].qty<=0) cart.splice(i,1);
+    update();
 }
 
-function removeItem(i){
-    cart.splice(i,1);
-    updateCart();
-}
-
-/* فتح السلة */
+/* سلة */
 function toggleCart(){
-    let c = document.getElementById("cart");
-    c.style.display = c.style.display === "block" ? "none" : "block";
+    let c=document.getElementById("cart");
+    c.style.display=c.style.display==="block"?"none":"block";
     renderCart();
 }
 
-/* واتساب */
-function checkout(){
-    let msg = "طلب جديد:%0A";
+/* Checkout */
+function openCheckout(total){
+    document.getElementById("checkout").style.display="block";
+    document.getElementById("total").innerText = "الإجمالي: " + total + " ريال";
+}
+
+function closeCheckout(){
+    document.getElementById("checkout").style.display="none";
+}
+
+/* كوبون */
+function applyCoupon(total){
+    let c=document.getElementById("coupon").value;
+
+    if(c==="KIWI10"){
+        discount = total * 0.10;
+        return total - discount;
+    }
+    return total;
+}
+
+/* تأكيد */
+function confirmOrder(){
+
+    let name=document.getElementById("name").value;
+    let phone=document.getElementById("phone").value;
+
+    if(!name || !phone){
+        alert("أدخل البيانات");
+        return;
+    }
+
+    let total=0;
+    cart.forEach(i=>{
+        total+=i.price*i.qty;
+    });
+
+    total = applyCoupon(total);
+
+    let msg="طلب جديد:%0A";
 
     cart.forEach(i=>{
-        msg += `${i.name} x${i.qty}%0A`;
+        msg+=`${i.name} x${i.qty}%0A`;
     });
+
+    msg+=`%0Aالاسم: ${name}%0A`;
+    msg+=`الجوال: ${phone}%0A`;
+    msg+=`الإجمالي: ${total}`;
 
     window.open("https://wa.me/966537585439?text="+msg);
+
+    cart=[];
+    update();
+    closeCheckout();
+    toast("تم إرسال الطلب 🎉");
 }
 
-/* المفضلة */
-function toggleFav(el){
-    let name = el.parentElement.getAttribute("data-name");
-
-    if(favs.includes(name)){
-        favs = favs.filter(i=>i!==name);
-        el.innerHTML = "🤍";
-    } else {
-        favs.push(name);
-        el.innerHTML = "❤️";
-    }
-}
-
-/* البحث */
-function filterProducts(){
-    let val = document.getElementById("search").value.toLowerCase();
-    document.querySelectorAll(".product").forEach(p=>{
-        let name = p.getAttribute("data-name").toLowerCase();
-        p.style.display = name.includes(val) ? "block":"none";
-    });
-}
-
-/* صفحة المنتج */
-function openProduct(name,price,images){
-
-    selectedProduct = {name,price};
-
-    document.getElementById("productPage").style.display = "block";
-    document.getElementById("pName").innerText = name;
-    document.getElementById("pPrice").innerText = price + " ريال";
-
-    document.getElementById("bigImg").src = images[0];
-
-    let thumbs = document.getElementById("thumbs");
-    thumbs.innerHTML = "";
-
-    images.forEach(img=>{
-        thumbs.innerHTML += `<img class="thumb" src="${img}" onclick="bigImg.src='${img}'">`;
-    });
-}
-
-/* إغلاق */
-function closePage(){
-    document.getElementById("productPage").style.display = "none";
-}
-
-/* إضافة من الصفحة */
-function addDetailToCart(){
-    addToCart(selectedProduct.name, selectedProduct.price);
+/* إشعار */
+function toast(msg){
+    let t=document.getElementById("toast");
+    t.innerText=msg;
+    t.style.display="block";
+    setTimeout(()=>t.style.display="none",2000);
 }
 
 /* تشغيل */
-updateCart();
+update();
 
 </script>
 
