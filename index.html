@@ -39,6 +39,7 @@ header {
 .main-img {
     width: 100%;
     border-radius: 10px;
+    cursor: pointer;
 }
 
 .gallery {
@@ -54,7 +55,11 @@ header {
     object-fit: cover;
     border-radius: 6px;
     cursor: pointer;
-    border: 1px solid #ddd;
+    border: 2px solid transparent;
+}
+
+.gallery img.active {
+    border: 2px solid #ff69b4;
 }
 
 button {
@@ -66,6 +71,27 @@ button {
     border-radius: 5px;
     cursor: pointer;
 }
+
+/* نافذة التكبير */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 999;
+    padding-top: 50px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.8);
+}
+
+.modal img {
+    display: block;
+    margin: auto;
+    max-width: 90%;
+    border-radius: 10px;
+}
+
 </style>
 </head>
 
@@ -76,31 +102,36 @@ button {
 <div class="products">
 
 <div class="product">
-<img id="main1" class="main-img" src="dress1.jpg">
+<img id="main1" class="main-img" src="dress1.jpg" onclick="zoomImage(this.src)">
 <h3>فستان بناتي</h3>
 <p>180 ريال</p>
 
 <div class="gallery">
-<img src="dress1.jpg" onclick="changeImage('main1', this.src)">
-<img src="dress2.jpg" onclick="changeImage('main1', this.src)">
+<img src="dress1.jpg" class="active" onclick="changeImage('main1', this)">
+<img src="dress2.jpg" onclick="changeImage('main1', this)">
 </div>
 
 <button onclick="order()">اطلب الآن</button>
 </div>
 
 <div class="product">
-<img id="main2" class="main-img" src="dress2.jpg">
+<img id="main2" class="main-img" src="dress2.jpg" onclick="zoomImage(this.src)">
 <h3>فستان بناتي فراشة</h3>
 <p>120 ريال</p>
 
 <div class="gallery">
-<img src="dress2.jpg" onclick="changeImage('main2', this.src)">
-<img src="dress1.jpg" onclick="changeImage('main2', this.src)">
+<img src="dress2.jpg" class="active" onclick="changeImage('main2', this)">
+<img src="dress1.jpg" onclick="changeImage('main2', this)">
 </div>
 
 <button onclick="order()">اطلب الآن</button>
 </div>
 
+</div>
+
+<!-- نافذة التكبير -->
+<div id="modal" class="modal" onclick="closeModal()">
+    <img id="modalImg">
 </div>
 
 <script>
@@ -108,8 +139,24 @@ function order() {
     window.open("https://wa.me/966537585439");
 }
 
-function changeImage(id, src) {
-    document.getElementById(id).src = src;
+function changeImage(id, el) {
+    document.getElementById(id).src = el.src;
+
+    // إزالة التحديد من باقي الصور
+    let images = el.parentElement.querySelectorAll("img");
+    images.forEach(img => img.classList.remove("active"));
+
+    // إضافة التحديد للصورة المختارة
+    el.classList.add("active");
+}
+
+function zoomImage(src) {
+    document.getElementById("modal").style.display = "block";
+    document.getElementById("modalImg").src = src;
+}
+
+function closeModal() {
+    document.getElementById("modal").style.display = "none";
 }
 </script>
 
