@@ -18,6 +18,20 @@ header {
     text-align: center;
     font-size: 24px;
     color: white;
+    position: relative;
+}
+
+/* زر السلة */
+.cart-btn {
+    position: absolute;
+    left: 10px;
+    top: 10px;
+    background: white;
+    color: #ff69b4;
+    padding: 5px 10px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 14px;
 }
 
 .products {
@@ -44,7 +58,6 @@ header {
 .main-img {
     width: 100%;
     border-radius: 10px;
-    cursor: pointer;
 }
 
 button {
@@ -52,117 +65,136 @@ button {
     border: none;
     color: white;
     padding: 10px;
-    margin-top: 10px;
+    margin-top: 8px;
     border-radius: 5px;
     cursor: pointer;
 }
 
-/* المعرض */
-.modal {
+/* السلة */
+.cart {
     display: none;
     position: fixed;
     z-index: 999;
-    left: 0;
     top: 0;
-    width: 100%;
+    right: 0;
+    width: 300px;
     height: 100%;
-    background: rgba(0,0,0,0.9);
+    background: #fff;
+    border-left: 2px solid #eee;
+    padding: 10px;
+    overflow-y: auto;
+}
+
+.cart h3 {
     text-align: center;
-    padding-top: 60px;
 }
 
-.modal-img {
-    max-width: 90%;
-    border-radius: 10px;
+.cart-item {
+    border-bottom: 1px solid #eee;
+    padding: 5px;
+    margin-bottom: 5px;
 }
 
-.modal-thumbs {
-    margin-top: 15px;
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-}
-
-.modal-thumbs img {
-    width: 70px;
-    height: 70px;
-    border-radius: 8px;
+.remove {
+    color: red;
     cursor: pointer;
-    border: 2px solid white;
+    font-size: 12px;
 }
 </style>
 </head>
 
 <body>
 
-<header>Kiwi Kids 👗</header>
+<header>
+Kiwi Kids 👗
+<div class="cart-btn" onclick="toggleCart()">
+🛒 (<span id="cartCount">0</span>)
+</div>
+</header>
 
 <div class="products">
 
-<!-- صف 1 -->
 <div class="product-row">
 
 <div class="product">
-<img class="main-img" src="dress1.jpg"
-onclick="openGallery(['dress1.jpg','dress2.jpg','dress3.jpg'], 'dress1.jpg')">
+<img class="main-img" src="dress1.jpg">
 <h3>فستان 1</h3>
 <p>150 ريال</p>
-<button onclick="order()">اطلب الآن</button>
+<button onclick="addToCart('فستان 1',150)">أضف للسلة</button>
 </div>
 
 <div class="product">
-<img class="main-img" src="dress2.jpg"
-onclick="openGallery(['dress2.jpg','dress3.jpg','dress1.jpg'], 'dress2.jpg')">
+<img class="main-img" src="dress2.jpg">
 <h3>فستان 2</h3>
 <p>130 ريال</p>
-<button onclick="order()">اطلب الآن</button>
+<button onclick="addToCart('فستان 2',130)">أضف للسلة</button>
 </div>
 
 <div class="product">
-<img class="main-img" src="dress3.jpg"
-onclick="openGallery(['dress3.jpg','dress1.jpg','dress2.jpg'], 'dress3.jpg')">
+<img class="main-img" src="dress3.jpg">
 <h3>فستان 3</h3>
 <p>170 ريال</p>
-<button onclick="order()">اطلب الآن</button>
+<button onclick="addToCart('فستان 3',170)">أضف للسلة</button>
 </div>
 
 </div>
 
 </div>
 
-<!-- نافذة الصور -->
-<div id="galleryModal" class="modal">
-<span onclick="closeGallery()" style="color:white;font-size:30px;position:absolute;top:20px;right:30px;cursor:pointer;">✕</span>
-
-<img id="modalMain" class="modal-img">
-
-<div class="modal-thumbs" id="modalThumbs"></div>
+<!-- السلة -->
+<div class="cart" id="cart">
+<h3>سلة المشتريات 🛒</h3>
+<div id="cartItems"></div>
+<h4>الإجمالي: <span id="total">0</span> ريال</h4>
+<button onclick="checkout()">إتمام الطلب</button>
 </div>
 
 <script>
-function order() {
-    window.open("https://wa.me/966537585439");
+let cart = [];
+
+function addToCart(name, price) {
+    cart.push({name, price});
+    updateCart();
 }
 
-function openGallery(images, current) {
-    document.getElementById("galleryModal").style.display = "block";
+function updateCart() {
+    document.getElementById("cartCount").innerText = cart.length;
 
-    let main = document.getElementById("modalMain");
-    let thumbs = document.getElementById("modalThumbs");
+    let items = document.getElementById("cartItems");
+    items.innerHTML = "";
 
-    main.src = current;
-    thumbs.innerHTML = "";
+    let total = 0;
 
-    images.forEach(img => {
-        let el = document.createElement("img");
-        el.src = img;
-        el.onclick = () => main.src = img;
-        thumbs.appendChild(el);
+    cart.forEach((item, index) => {
+        total += item.price;
+
+        items.innerHTML += `
+        <div class="cart-item">
+            ${item.name} - ${item.price} ريال
+            <div class="remove" onclick="removeItem(${index})">حذف</div>
+        </div>`;
     });
+
+    document.getElementById("total").innerText = total;
 }
 
-function closeGallery() {
-    document.getElementById("galleryModal").style.display = "none";
+function removeItem(index) {
+    cart.splice(index, 1);
+    updateCart();
+}
+
+function toggleCart() {
+    let c = document.getElementById("cart");
+    c.style.display = c.style.display === "block" ? "none" : "block";
+}
+
+function checkout() {
+    let msg = "طلب جديد:%0A";
+    cart.forEach(i => {
+        msg += `- ${i.name} ${i.price} ريال%0A`;
+    });
+
+    window.open("https://wa.me/966537585439?text=" + msg);
 }
 </script>
 
