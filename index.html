@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
@@ -21,7 +20,6 @@ header {
     color: white;
 }
 
-/* الصفوف */
 .products {
     display: flex;
     flex-direction: column;
@@ -29,48 +27,24 @@ header {
     margin: 20px;
 }
 
-/* كل صف */
 .product-row {
     display: flex;
     gap: 10px;
     overflow-x: auto;
-    padding-bottom: 10px;
 }
 
-/* الكرت */
 .product {
     min-width: 220px;
     border: 1px solid #eee;
     border-radius: 10px;
     padding: 10px;
     text-align: center;
-    background: #fff;
 }
 
 .main-img {
     width: 100%;
     border-radius: 10px;
-}
-
-/* صور المنتج */
-.gallery {
-    display: flex;
-    gap: 5px;
-    overflow-x: auto;
-    margin-top: 8px;
-}
-
-.gallery img {
-    width: 60px;
-    height: 60px;
-    object-fit: cover;
-    border-radius: 6px;
     cursor: pointer;
-    border: 2px solid transparent;
-}
-
-.gallery img.active {
-    border: 2px solid #ff69b4;
 }
 
 button {
@@ -82,8 +56,41 @@ button {
     border-radius: 5px;
     cursor: pointer;
 }
-</style>
 
+/* المعرض */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.9);
+    text-align: center;
+    padding-top: 60px;
+}
+
+.modal-img {
+    max-width: 90%;
+    border-radius: 10px;
+}
+
+.modal-thumbs {
+    margin-top: 15px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.modal-thumbs img {
+    width: 70px;
+    height: 70px;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 2px solid white;
+}
+</style>
 </head>
 
 <body>
@@ -92,114 +99,44 @@ button {
 
 <div class="products">
 
-<!-- الصف الأول -->
-
+<!-- صف 1 -->
 <div class="product-row">
 
 <div class="product">
-<img id="m1" class="main-img" src="dress1.jpg">
+<img class="main-img" src="dress1.jpg"
+onclick="openGallery(['dress1.jpg','dress2.jpg','dress3.jpg'], 'dress1.jpg')">
 <h3>فستان 1</h3>
 <p>150 ريال</p>
-
-<div class="gallery">
-<img src="dress1.jpg" class="active" onclick="changeImage('m1', this)">
-<img src="dress2.jpg" onclick="changeImage('m1', this)">
-<img src="dress3.jpg" onclick="changeImage('m1', this)">
-</div>
-
 <button onclick="order()">اطلب الآن</button>
-
 </div>
 
 <div class="product">
-<img id="m2" class="main-img" src="dress2.jpg">
+<img class="main-img" src="dress2.jpg"
+onclick="openGallery(['dress2.jpg','dress3.jpg','dress1.jpg'], 'dress2.jpg')">
 <h3>فستان 2</h3>
 <p>130 ريال</p>
-
-<div class="gallery">
-<img src="dress2.jpg" class="active" onclick="changeImage('m2', this)">
-<img src="dress3.jpg" onclick="changeImage('m2', this)">
-<img src="dress1.jpg" onclick="changeImage('m2', this)">
-</div>
-
 <button onclick="order()">اطلب الآن</button>
-
 </div>
-
-</div>
-
-<!-- الصف الثاني -->
-
-<div class="product-row">
 
 <div class="product">
-<img id="m3" class="main-img" src="dress3.jpg">
+<img class="main-img" src="dress3.jpg"
+onclick="openGallery(['dress3.jpg','dress1.jpg','dress2.jpg'], 'dress3.jpg')">
 <h3>فستان 3</h3>
 <p>170 ريال</p>
-
-<div class="gallery">
-<img src="dress3.jpg" class="active" onclick="changeImage('m3', this)">
-<img src="dress1.jpg" onclick="changeImage('m3', this)">
-<img src="dress2.jpg" onclick="changeImage('m3', this)">
-</div>
-
 <button onclick="order()">اطلب الآن</button>
-
 </div>
-
-<div class="product">
-<img id="m4" class="main-img" src="dress1.jpg">
-<h3>فستان 4</h3>
-<p>140 ريال</p>
-
-<div class="gallery">
-<img src="dress1.jpg" class="active" onclick="changeImage('m4', this)">
-<img src="dress2.jpg" onclick="changeImage('m4', this)">
-<img src="dress3.jpg" onclick="changeImage('m4', this)">
-</div>
-
-<button onclick="order()">اطلب الآن</button>
 
 </div>
 
 </div>
 
-<!-- الصف الثالث -->
+<!-- نافذة الصور -->
+<div id="galleryModal" class="modal">
+<span onclick="closeGallery()" style="color:white;font-size:30px;position:absolute;top:20px;right:30px;cursor:pointer;">✕</span>
 
-<div class="product-row">
+<img id="modalMain" class="modal-img">
 
-<div class="product">
-<img id="m5" class="main-img" src="dress2.jpg">
-<h3>فستان 5</h3>
-<p>160 ريال</p>
-
-<div class="gallery">
-<img src="dress2.jpg" class="active" onclick="changeImage('m5', this)">
-<img src="dress1.jpg" onclick="changeImage('m5', this)">
-<img src="dress3.jpg" onclick="changeImage('m5', this)">
-</div>
-
-<button onclick="order()">اطلب الآن</button>
-
-</div>
-
-<div class="product">
-<img id="m6" class="main-img" src="dress3.jpg">
-<h3>فستان 6</h3>
-<p>180 ريال</p>
-
-<div class="gallery">
-<img src="dress3.jpg" class="active" onclick="changeImage('m6', this)">
-<img src="dress2.jpg" onclick="changeImage('m6', this)">
-<img src="dress1.jpg" onclick="changeImage('m6', this)">
-</div>
-
-<button onclick="order()">اطلب الآن</button>
-
-</div>
-
-</div>
-
+<div class="modal-thumbs" id="modalThumbs"></div>
 </div>
 
 <script>
@@ -207,13 +144,25 @@ function order() {
     window.open("https://wa.me/966537585439");
 }
 
-function changeImage(id, el) {
-    document.getElementById(id).src = el.src;
+function openGallery(images, current) {
+    document.getElementById("galleryModal").style.display = "block";
 
-    let images = el.parentElement.querySelectorAll("img");
-    images.forEach(img => img.classList.remove("active"));
+    let main = document.getElementById("modalMain");
+    let thumbs = document.getElementById("modalThumbs");
 
-    el.classList.add("active");
+    main.src = current;
+    thumbs.innerHTML = "";
+
+    images.forEach(img => {
+        let el = document.createElement("img");
+        el.src = img;
+        el.onclick = () => main.src = img;
+        thumbs.appendChild(el);
+    });
+}
+
+function closeGallery() {
+    document.getElementById("galleryModal").style.display = "none";
 }
 </script>
 
