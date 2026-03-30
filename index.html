@@ -1,15 +1,4 @@
 <!DOCTYPE html>
-<html>
-<head>
-<title>Kiwi Kids</title>
-</head>
-
-<body style="text-align:center; font-family:Arial;">
-<h1>  Kiwi</h1>
-<p>أهلاً بكم في متجر ملابس الأطفال</p>
-</body>
-</html>
-<!DOCTYPE html>
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
@@ -42,14 +31,30 @@ header {
     border: 1px solid #eee;
     border-radius: 10px;
     margin: 10px;
-    width: 200px;
+    width: 220px;
     text-align: center;
     padding: 10px;
 }
 
-.product img {
+.main-img {
     width: 100%;
     border-radius: 10px;
+}
+
+.gallery {
+    display: flex;
+    gap: 5px;
+    justify-content: center;
+    margin-top: 8px;
+}
+
+.gallery img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid #ddd;
 }
 
 button {
@@ -62,7 +67,6 @@ button {
     cursor: pointer;
 }
 </style>
-
 </head>
 
 <body>
@@ -72,16 +76,28 @@ button {
 <div class="products">
 
 <div class="product">
-<img src="dress1.jpg">
+<img id="main1" class="main-img" src="dress1.jpg">
 <h3>فستان بناتي</h3>
 <p>180 ريال</p>
+
+<div class="gallery">
+<img src="dress1.jpg" onclick="changeImage('main1', this.src)">
+<img src="dress2.jpg" onclick="changeImage('main1', this.src)">
+</div>
+
 <button onclick="order()">اطلب الآن</button>
 </div>
 
 <div class="product">
-<img src="dress2.jpg">
-<h3>فستان بناتي فراشه </h3>
+<img id="main2" class="main-img" src="dress2.jpg">
+<h3>فستان بناتي فراشة</h3>
 <p>120 ريال</p>
+
+<div class="gallery">
+<img src="dress2.jpg" onclick="changeImage('main2', this.src)">
+<img src="dress1.jpg" onclick="changeImage('main2', this.src)">
+</div>
+
 <button onclick="order()">اطلب الآن</button>
 </div>
 
@@ -90,6 +106,10 @@ button {
 <script>
 function order() {
     window.open("https://wa.me/966537585439");
+}
+
+function changeImage(id, src) {
+    document.getElementById(id).src = src;
 }
 </script>
 
