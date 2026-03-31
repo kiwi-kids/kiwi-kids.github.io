@@ -29,30 +29,40 @@ footer{text-align:center;padding:10px;font-size:.9em;color:#555;}
 <script>
 /* تأكيد */
 function confirmOrder(){
-  let name=document.getElementById("name").value;
-  let phone=document.getElementById("phone").value;
-  if(!name||!phone){
-    alert("أدخل البيانات");
-    return;
-  }
-  let total=0;
-  cart.forEach(i=>{total+=i.price*i.qty;});
-  total=applyCoupon(total);
-  let msg="طلب جديد:%0A";
-  cart.forEach(i=>{msg+=`${i.name} x${i.qty}%0A`;});
-  msg+=`%0Aالاسم: ${name}%0Aالجوال: ${phone}%0Aالإجمالي: ${total}`;
-  window.open("https://wa.me/966537585439?text="+msg);
-  cart=[];
-  update();
-  closeCheckout();
-  toast("تم إرسال الطلب 🎉");
+    let name=document.getElementById("name").value;
+    let phone=document.getElementById("phone").value;
+    if(!name || !phone){
+        alert("أدخل البيانات");
+        return;
+    }
+    let total=0;
+    cart.forEach(i=>{
+        total+=i.price*i.qty;
+    });
+    total = applyCoupon(total);
+    let msg="طلب جديد:%0A";
+    cart.forEach(i=>{
+        msg+=`${i.name} x${i.qty}%0A`;
+    });
+    msg+=`%0Aالاسم: ${name}%0A`;
+    msg+=`الجوال: ${phone}%0A`;
+    msg+=`الإجمالي: ${total}`;
+    window.open("https://wa.me/966537585439?text="+msg);
+    cart=[];
+    update();
+    closeCheckout();
+    toast("تم إرسال الطلب 🎉");
 }
+
+/* إشعار */
 function toast(msg){
-  let t=document.getElementById("toast");
-  t.innerText=msg;
-  t.style.display="block";
-  setTimeout(()=>t.style.display="none",2000);
+    let t=document.getElementById("toast");
+    t.innerText=msg;
+    t.style.display="block";
+    setTimeout(()=>t.style.display="none",2000);
 }
+
+/* تشغيل */
 update();
 </script>
 
@@ -64,6 +74,7 @@ update();
 
 <footer>
 <p>© 2026 كيوي. جميع الحقوق محفوظة.</p>
+<p>تصميم وتنفيذ: فريق كيوي</p>
 </footer>
 
 </body>
