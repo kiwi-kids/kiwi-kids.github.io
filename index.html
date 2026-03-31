@@ -118,7 +118,18 @@ input, select {
 
 <body>
 
-<header>`<h1>كيوي</h1>` </header>
+<header>   <p class="bold-move">أهلاً بكم في متجر كيوي ملابس الأطفال</p>
+<style>
+.bold-move {
+  font-weight:bold;
+  display:inline-block;
+  animation: move 6s infinite alternate ease-in-out;
+}
+@keyframes move {
+  from { transform: translateX(0); }
+  to   { transform: translateX(40px); }
+}
+</style>  </header>
 
 <div class="cart-btn" onclick="toggleCart()">🛒 (<span id="count">0</span>)</div>
 
