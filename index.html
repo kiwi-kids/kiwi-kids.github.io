@@ -1,50 +1,96 @@
-/* تأكيد */
-function confirmOrder(){
+<!DOCTYPE html>
+<html>
+<head>
+<title>Kiwi Kids</title>
+</head>
 
-    let name=document.getElementById("name").value;
-    let phone=document.getElementById("phone").value;
+<body style="text-align:center; font-family:Arial;">
+<h1>  Kiwi</h1>
+<p>أهلاً بكم في متجر ملابس الأطفال</p>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kiwi Kids</title>
 
-    if(!name || !phone){
-        alert("أدخل البيانات");
-        return;
-    }
-
-    let total=0;
-    cart.forEach(i=>{
-        total+=i.price*i.qty;
-    });
-
-    total = applyCoupon(total);
-
-    let msg="طلب جديد:%0A";
-
-    cart.forEach(i=>{
-        msg+=`${i.name} x${i.qty}%0A`;
-    });
-
-    msg+=`%0Aالاسم: ${name}%0A`;
-    msg+=`الجوال: ${phone}%0A`;
-    msg+=`الإجمالي: ${total}`;
-
-    window.open("https://wa.me/966537585439?text="+msg);
-
-    cart=[];
-    update();
-    closeCheckout();
-    toast("تم إرسال الطلب 🎉");
+<style>
+body {
+    font-family: Arial;
+    margin: 0;
+    background: #fff;
 }
 
-/* إشعار */
-function toast(msg){
-    let t=document.getElementById("toast");
-    t.innerText=msg;
-    t.style.display="block";
-    setTimeout(()=>t.style.display="none",2000);
+header {
+    background: #ffb6c1;
+    padding: 15px;
+    text-align: center;
+    font-size: 24px;
+    color: white;
 }
 
-/* تشغيل */
-update();
+.products {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 20px;
+}
 
+.product {
+    border: 1px solid #eee;
+    border-radius: 10px;
+    margin: 10px;
+    width: 200px;
+    text-align: center;
+    padding: 10px;
+}
+
+.product img {
+    width: 100%;
+    border-radius: 10px;
+}
+
+button {
+    background: #ff69b4;
+    border: none;
+    color: white;
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+</style>
+
+</head>
+
+<body>
+
+<header>Kiwi Kids 👗</header>
+
+<div class="products">
+
+<div class="product">
+<img src="dress1.jpg">
+<h3>فستان بناتي</h3>
+<p>180 ريال</p>
+<button onclick="order()">اطلب الآن</button>
+</div>
+
+<div class="product">
+<img src="dress2.jpg">
+<h3>فستان بناتي فراشه </h3>
+<p>120 ريال</p>
+<button onclick="order()">اطلب الآن</button>
+</div>
+
+</div>
+
+<script>
+function order() {
+    window.open("https://wa.me/966537585439");
+}
 </script>
 
 </body>
