@@ -2,327 +2,69 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  
-</body>
-</html>
-</body>
-</html></title>
-             
-
-
-
-  
+<title>كيوي - ملابس بنات</title>
 <style>
-body {
-    font-family: Arial;
-    margin: 0;
-    background: #fff;
-}
-
-/* الهيدر */
-header {
-    background: #ffb6c1;
-    padding: 15px;
-    text-align: center;
-    color: white;
-    font-size: 20px;
-}
-
-/* المنتجات */
-.products {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-    padding: 10px;
-}
-
-.product {
-    border: 1px solid #eee;
-    border-radius: 12px;
-    padding: 10px;
-    cursor: pointer;
-}
-
-.product img {
-    width: 100%;
-    border-radius: 10px;
-}
-
-button {
-    background: #ff69b4;
-    color: white;
-    border: none;
-    padding: 10px;
-    border-radius: 8px;
-    margin-top: 5px;
-}
-
-/* السلة */
-.cart {
-    display: none;
-    position: fixed;
-    right: 0;
-    top: 0;
-    width: 320px;
-    height: 100%;
-    background: white;
-    border-left: 1px solid #ddd;
-    padding: 10px;
-    overflow: auto;
-}
-
-/* Checkout */
-.checkout {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: white;
-    padding: 15px;
-}
-
-input, select {
-    width: 100%;
-    padding: 10px;
-    margin: 5px 0;
-    border-radius: 8px;
-    border: 1px solid #ddd;
-}
-
-/* إشعار */
-#toast {
-    position: fixed;
-    bottom: 80px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #333;
-    color: white;
-    padding: 10px 15px;
-    border-radius: 20px;
-    display: none;
-}
-
-/* زر سلة */
-.cart-btn {
-    position: fixed;
-    top: 10px;
-    left: 10px;
-    background: white;
-    padding: 6px 12px;
-    border-radius: 20px;
-    cursor: pointer;
-}
-</style>
-</head>
-
-<body>
-
-<header>   <p class="bold-move">أهلاً بكم في متجر كيوي ملابس الأطفال</p>
-<style>
-.bold-move {
+.bold-move{
   font-weight:bold;
   display:inline-block;
-  animation: move 6s infinite alternate ease-in-out;
+  animation:move 6s infinite alternate ease-in-out;
 }
-@keyframes move {
-  from { transform: translateX(0); }
-  to   { transform: translateX(40px); }
+@keyframes move{
+  from{transform:translateX(0);}
+  to{transform:translateX(40px);}
 }
-</style>  </header>
+.about p{line-height:1.5;color:#333;margin:20px;}
+footer{text-align:center;padding:10px;font-size:.9em;color:#555;}
+#toast{display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:8px;border-radius:4px;}
+</style>
+</head>
+<body>
 
-<div class="cart-btn" onclick="toggleCart()">🛒 (<span id="count">0</span>)</div>
+<header>
+<h1 class="bold-move">كيوي</h1>
+</header>
 
-<!-- المنتجات -->
-<div class="products">
-
-<div class="product">
-<img src="dress1.jpg">
-<h3>فستان 1</h3>
-<p>150 ريال</p>
-<button onclick="addToCart('فستان 1',150)">إضافة</button>
-</div>
-
-<div class="product">
-<img src="dress2.jpg">
-<h3>فستان 2</h3>
-<p>130 ريال</p>
-<button onclick="addToCart('فستان 2',130)">إضافة</button>
-</div>
-
-<div class="product">
-<img src="dress3.jpg">
-<h3>فستان 3</h3>
-<p>170 ريال</p>
-<button onclick="addToCart('فستان 3',170)">إضافة</button>
-</div>
-
-</div>
-
-<!-- السلة -->
-<div class="cart" id="cart"></div>
-
-<!-- Checkout -->
-<div class="checkout" id="checkout">
-
-<h2>إتمام الطلب 💳</h2>
-
-<input id="name" placeholder="الاسم">
-<input id="phone" placeholder="رقم الجوال">
-
-<select id="payment">
-<option>واتساب</option>
-<option>كاش عند الاستلام</option>
-<option>تحويل بنكي</option>
-</select>
-
-<input id="coupon" placeholder="كوبون خصم">
-
-<h3 id="total"></h3>
-
-<button onclick="confirmOrder()">تأكيد الطلب</button>
-<button onclick="closeCheckout()">إلغاء</button>
-
-</div>
-
-<!-- Toast -->
-<div id="toast"></div>
+<!-- منتجاتك هنا -->
 
 <script>
-
-let cart = JSON.parse(localStorage.getItem("cart")) || [];
-let discount = 0;
-
-/* حفظ */
-function save(){
-    localStorage.setItem("cart", JSON.stringify(cart));
-}
-
-/* إضافة */
-function addToCart(name, price){
-    let found = cart.find(i=>i.name===name);
-
-    if(found) found.qty++;
-    else cart.push({name,price,qty:1});
-
-    update();
-    toast("تمت الإضافة 🛒");
-}
-
-/* تحديث */
-function update(){
-    save();
-    document.getElementById("count").innerText = cart.length;
-    renderCart();
-}
-
-/* عرض السلة */
-function renderCart(){
-    let box = document.getElementById("cart");
-    box.innerHTML = "<h3>السلة</h3>";
-
-    let total = 0;
-
-    cart.forEach((i,idx)=>{
-        total += i.price*i.qty;
-
-        box.innerHTML += `
-        <div>
-        ${i.name} x${i.qty}
-        <br>${i.price}
-        <button onclick="changeQty(${idx},-1)">-</button>
-        <button onclick="changeQty(${idx},1)">+</button>
-        </div><hr>`;
-    });
-
-    box.innerHTML += `
-    <h4>الإجمالي: ${total}</h4>
-    <button onclick="openCheckout(${total})">الدفع 💳</button>`;
-}
-
-/* كمية */
-function changeQty(i,v){
-    cart[i].qty += v;
-    if(cart[i].qty<=0) cart.splice(i,1);
-    update();
-}
-
-/* سلة */
-function toggleCart(){
-    let c=document.getElementById("cart");
-    c.style.display=c.style.display==="block"?"none":"block";
-    renderCart();
-}
-
-/* Checkout */
-function openCheckout(total){
-    document.getElementById("checkout").style.display="block";
-    document.getElementById("total").innerText = "الإجمالي: " + total + " ريال";
-}
-
-function closeCheckout(){
-    document.getElementById("checkout").style.display="none";
-}
-
-/* كوبون */
-function applyCoupon(total){
-    let c=document.getElementById("coupon").value;
-
-    if(c==="KIWI10"){
-        discount = total * 0.10;
-        return total - discount;
-    }
-    return total;
-}
-
 /* تأكيد */
 function confirmOrder(){
-
-    let name=document.getElementById("name").value;
-    let phone=document.getElementById("phone").value;
-
-    if(!name || !phone){
-        alert("أدخل البيانات");
-        return;
-    }
-
-    let total=0;
-    cart.forEach(i=>{
-        total+=i.price*i.qty;
-    });
-
-    total = applyCoupon(total);
-
-    let msg="طلب جديد:%0A";
-
-    cart.forEach(i=>{
-        msg+=`${i.name} x${i.qty}%0A`;
-    });
-
-    msg+=`%0Aالاسم: ${name}%0A`;
-    msg+=`الجوال: ${phone}%0A`;
-    msg+=`الإجمالي: ${total}`;
-
-    window.open("https://wa.me/966537585439?text="+msg);
-
-    cart=[];
-    update();
-    closeCheckout();
-    toast("تم إرسال الطلب 🎉");
+  let name=document.getElementById("name").value;
+  let phone=document.getElementById("phone").value;
+  if(!name||!phone){
+    alert("أدخل البيانات");
+    return;
+  }
+  let total=0;
+  cart.forEach(i=>{total+=i.price*i.qty;});
+  total=applyCoupon(total);
+  let msg="طلب جديد:%0A";
+  cart.forEach(i=>{msg+=`${i.name} x${i.qty}%0A`;});
+  msg+=`%0Aالاسم: ${name}%0Aالجوال: ${phone}%0Aالإجمالي: ${total}`;
+  window.open("https://wa.me/966537585439?text="+msg);
+  cart=[];
+  update();
+  closeCheckout();
+  toast("تم إرسال الطلب 🎉");
 }
-
-/* إشعار */
 function toast(msg){
-    let t=document.getElementById("toast");
-    t.innerText=msg;
-    t.style.display="block";
-    setTimeout(()=>t.style.display="none",2000);
+  let t=document.getElementById("toast");
+  t.innerText=msg;
+  t.style.display="block";
+  setTimeout(()=>t.style.display="none",2000);
 }
-
-/* تشغيل */
 update();
-
 </script>
+
+<div id="toast"></div>
+
+<section class="about">
+<p>كيوي هو متجر متخصص في ملابس البنات الأطفال، يقدّم تشكيلة لطيفة ومميّزة من الفساتين والتنانير والبلوزات، بتصاميم عصرية وخامات مريحة تناسب حركة الأطفال وتجمع بين الأناقة والراحة في كل إطلالة.</p>
+</section>
+
+<footer>
+<p>© 2026 كيوي. جميع الحقوق محفوظة.</p>
+</footer>
 
 </body>
 </html>
