@@ -1,53 +1,33 @@
-<!DOCTYPE html>
-<html lang="ar">
-<head>
-<meta charset="UTF-8">
-<title>كيوي - ملابس بنات</title>
-<style>
-.bold-move{
-  font-weight:bold;
-  display:inline-block;
-  animation:move 6s infinite alternate ease-in-out;
-}
-@keyframes move{
-  from{transform:translateX(0);}
-  to{transform:translateX(40px);}
-}
-.about p{line-height:1.5;color:#333;margin:20px;}
-footer{text-align:center;padding:10px;font-size:.9em;color:#555;}
-#toast{display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:8px;border-radius:4px;}
-</style>
-</head>
-<body>
-
-<header>
-<h1 class="bold-move">كيوي</h1>
-</header>
-
-<!-- منتجاتك هنا -->
-
-<script>
 /* تأكيد */
 function confirmOrder(){
+
     let name=document.getElementById("name").value;
     let phone=document.getElementById("phone").value;
+
     if(!name || !phone){
         alert("أدخل البيانات");
         return;
     }
+
     let total=0;
     cart.forEach(i=>{
         total+=i.price*i.qty;
     });
+
     total = applyCoupon(total);
+
     let msg="طلب جديد:%0A";
+
     cart.forEach(i=>{
         msg+=`${i.name} x${i.qty}%0A`;
     });
+
     msg+=`%0Aالاسم: ${name}%0A`;
     msg+=`الجوال: ${phone}%0A`;
     msg+=`الإجمالي: ${total}`;
+
     window.open("https://wa.me/966537585439?text="+msg);
+
     cart=[];
     update();
     closeCheckout();
@@ -64,18 +44,8 @@ function toast(msg){
 
 /* تشغيل */
 update();
+
 </script>
-
-<div id="toast"></div>
-
-<section class="about">
-<p>كيوي هو متجر متخصص في ملابس البنات الأطفال، يقدّم تشكيلة لطيفة ومميّزة من الفساتين والتنانير والبلوزات، بتصاميم عصرية وخامات مريحة تناسب حركة الأطفال وتجمع بين الأناقة والراحة في كل إطلالة.</p>
-</section>
-
-<footer>
-<p>© 2026 كيوي. جميع الحقوق محفوظة.</p>
-<p>تصميم وتنفيذ: فريق كيوي</p>
-</footer>
 
 </body>
 </html>
