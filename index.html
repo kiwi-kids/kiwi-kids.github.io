@@ -2,134 +2,14 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Kiwi Kids</title>
-
-<style>
-body{
-margin:0;
-font-family:Arial;
-direction:rtl;
-background:#f5f5f5;
-}
-
-/* الهيدر */
-header{
-background:#4CAF50;
-color:white;
-padding:15px;
-display:flex;
-justify-content:space-between;
-align-items:center;
-}
-
-h1{font-size:24px}
-
-/* زر القائمة */
-.menu-btn{
-font-size:40px;
-cursor:pointer;
-}
-
-/* القائمة الجانبية */
-.sidebar{
-position:fixed;
-top:0;
-right:-300px;
-width:260px;
-height:100%;
-background:white;
-padding:20px;
-box-shadow:-2px 0 10px rgba(0,0,0,0.2);
-transition:0.3s;
-z-index:999;
-}
-
-.sidebar.open{
-right:0;
-}
-
-.sidebar div{
-padding:15px;
-border-bottom:1px solid #ddd;
-font-size:20px;
-cursor:pointer;
-}
-
-/* المحتوى */
-.content{
-padding:20px;
-font-size:18px;
-}
-
-/* المنتج */
-.product{
-background:white;
-padding:15px;
-margin:10px;
-border-radius:10px;
-box-shadow:0 2px 5px rgba(0,0,0,0.1);
-font-size:18px;
-}
-
-</style>
+<title>Test Shop</title>
 </head>
 
-<body>
+<body style="font-family:Arial; direction:rtl; text-align:center;">
 
-<header>
-<h1>Kiwi Kids 🛍️</h1>
-<div class="menu-btn" onclick="toggleMenu()">☰</div>
-</header>
+<h1 style="font-size:40px;color:green;">المتجر شغال 👍</h1>
 
-<!-- القائمة -->
-<div class="sidebar" id="side">
-<div onclick="show('home')">🏠 الرئيسي</div>
-<div onclick="show('dresses')">👗 فساتين</div>
-<div onclick="show('evening')">🌙 فساتين سهرة</div>
-</div>
-
-<!-- المحتوى -->
-<div class="content" id="content">
-<h2>أهلاً 👋</h2>
-<p>اضغط ☰ واختر قسم</p>
-</div>
-
-<script>
-
-/* فتح وغلق القائمة */
-function toggleMenu(){
-document.getElementById("side").classList.toggle("open");
-}
-
-/* عرض الأقسام */
-function show(section){
-let c=document.getElementById("content");
-
-if(section==="home"){
-c.innerHTML="<h2>🏠 الرئيسي</h2><p>كل المنتجات هنا</p>";
-}
-
-if(section==="dresses"){
-c.innerHTML=`
-<h2>👗 فساتين</h2>
-<div class="product">فستان أطفال - 60 ريال</div>
-<div class="product">فستان بناتي - 80 ريال</div>
-`;
-}
-
-if(section==="evening"){
-c.innerHTML=`
-<h2>🌙 فساتين سهرة</h2>
-<div class="product">فستان سهرة فاخر - 150 ريال</div>
-<div class="product">فستان مناسبات - 120 ريال</div>
-`;
-}
-
-/* إغلاق القائمة بعد الاختيار */
-document.getElementById("side").classList.remove("open");
-}
-
-</script>
+<button onclick="alert('القائمة شغالة')">☰ اضغط هنا</button>
 
 </body>
 </html>
