@@ -6,96 +6,187 @@
 <title>Kiwi Kids</title>
 
 <style>
-body {
-    margin: 0;
-    font-family: Arial;
-    background: #fff;
-    text-align: center;
+body{
+    margin:0;
+    font-family:Arial;
+    background:#fff;
+    text-align:center;
 }
 
-/* الهيدر (الشعار) */
-.hero {
-    background: #ffe4ec;
-    padding: 30px 10px;
+/* الهيدر */
+.hero{
+    background:#ffe4ec;
+    padding:20px;
 }
 
-.hero img {
-    width: 220px;
+.hero img{
+    width:180px;
 }
 
-/* العنوان */
-h2 {
-    margin-top: 10px;
+/* البحث */
+input{
+    width:90%;
+    padding:10px;
+    border-radius:10px;
+    border:1px solid #ddd;
+    margin:10px 0;
 }
 
 /* المنتجات */
-.products {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    padding: 10px;
+.products{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
 }
 
-.product {
-    border: 1px solid #eee;
-    border-radius: 15px;
-    margin: 10px;
-    width: 180px;
-    padding: 10px;
-    box-shadow: 0 0 10px #eee;
+.product{
+    width:180px;
+    margin:10px;
+    border:1px solid #eee;
+    border-radius:15px;
+    padding:10px;
+    box-shadow:0 0 10px #eee;
 }
 
-.product img {
-    width: 100%;
-    border-radius: 10px;
+.product img{
+    width:100%;
+    border-radius:10px;
 }
 
-/* زر الطلب */
-button {
-    background: #ff69b4;
-    border: none;
-    color: white;
-    padding: 10px;
-    margin-top: 10px;
-    border-radius: 8px;
-    width: 100%;
-    font-size: 14px;
+button{
+    width:100%;
+    margin-top:5px;
+    padding:8px;
+    border:none;
+    border-radius:8px;
+    color:white;
+    cursor:pointer;
+}
+
+.add{background:#ff69b4}
+.buy{background:#4facfe}
+
+/* السلة */
+#cartBox{
+    position:fixed;
+    bottom:10px;
+    left:10px;
+    background:white;
+    border:1px solid #ddd;
+    border-radius:10px;
+    padding:10px;
+    width:200px;
+    box-shadow:0 0 10px #ccc;
+    font-size:13px;
+}
+
+/* واتساب */
+.whatsapp{
+    position:fixed;
+    bottom:10px;
+    right:10px;
+    background:#25D366;
+    color:white;
+    padding:12px;
+    border-radius:50px;
+    text-decoration:none;
 }
 </style>
-
 </head>
 
 <body>
 
-<!-- الشعار -->
 <div class="hero">
     <img src="logo.png">
 </div>
 
-<h2>اهلا بكم في متجر كيوي 👗</h2>
+<h2>متجر كيوي 👗</h2>
 
-<!-- المنتجات -->
-<div class="products">
+<input type="text" id="search" onkeyup="filter()" placeholder="ابحث عن منتج...">
 
-<div class="product">
+<div class="products" id="products">
+
+<div class="product" data-name="فستان بناتي" data-price="180">
 <img src="dress1.jpg">
 <h3>فستان بناتي</h3>
 <p>180 ريال</p>
-<button onclick="order()">اطلب الآن</button>
+<button class="add" onclick="addCart('فستان بناتي',180)">إضافة للسلة</button>
+<button class="buy" onclick="buy('فستان بناتي')">اطلب الآن</button>
 </div>
 
-<div class="product">
+<div class="product" data-name="فستان فراشة" data-price="120">
 <img src="dress2.jpg">
 <h3>فستان فراشة</h3>
 <p>120 ريال</p>
-<button onclick="order()">اطلب الآن</button>
+<button class="add" onclick="addCart('فستان فراشة',120)">إضافة للسلة</button>
+<button class="buy" onclick="buy('فستان فراشة')">اطلب الآن</button>
 </div>
 
 </div>
+
+<!-- السلة -->
+<div id="cartBox">
+<b>🛒 السلة</b>
+<div id="cartItems"></div>
+<p>الإجمالي: <span id="total">0</span> ريال</p>
+<button onclick="checkout()" style="background:orange;">إتمام الطلب</button>
+</div>
+
+<!-- واتساب -->
+<a class="whatsapp" href="#" onclick="checkout()">واتساب 📱</a>
 
 <script>
-function order() {
-    window.open("https://wa.me/966537585439");
+let cart = [];
+
+function addCart(name, price){
+    cart.push({name,price});
+    renderCart();
+}
+
+function renderCart(){
+    let html = "";
+    let total = 0;
+
+    cart.forEach((item,i)=>{
+        html += `
+        ${item.name} - ${item.price} ريال 
+        <button onclick="removeItem(${i})" style="background:red;padding:3px 5px;">X</button><br>
+        `;
+        total += item.price;
+    });
+
+    document.getElementById("cartItems").innerHTML = html;
+    document.getElementById("total").innerText = total;
+}
+
+function removeItem(index){
+    cart.splice(index,1);
+    renderCart();
+}
+
+function checkout(){
+    let phone = "966537585439";
+    let msg = "طلب جديد:%0A";
+
+    cart.forEach(item=>{
+        msg += item.name + " - " + item.price + " ريال%0A";
+    });
+
+    window.open("https://wa.me/"+phone+"?text="+msg);
+}
+
+function buy(name){
+    window.open("https://wa.me/966537585439?text=أريد شراء: "+name);
+}
+
+function filter(){
+    let input = document.getElementById("search").value.toLowerCase();
+    let items = document.getElementsByClassName("product");
+
+    for(let i=0;i<items.length;i++){
+        let name = items[i].getAttribute("data-name");
+        items[i].style.display = name.includes(input) ? "block" : "none";
+    }
 }
 </script>
 
