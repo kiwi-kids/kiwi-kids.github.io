@@ -32,7 +32,7 @@ font-size:45px;
 cursor:pointer;
 }
 
-/* 🔥 القائمة (أهم إصلاح) */
+/* القائمة */
 .sidebar{
 position:fixed;
 top:0;
@@ -42,8 +42,6 @@ height:100%;
 background:white;
 box-shadow:-2px 0 10px rgba(0,0,0,0.3);
 padding:20px;
-
-/* مخفية بالكامل */
 transform:translateX(100%);
 transition:0.3s;
 z-index:999;
@@ -53,11 +51,11 @@ z-index:999;
 transform:translateX(0);
 }
 
-/* عناصر القائمة */
 .sidebar div{
 padding:15px;
 border-bottom:1px solid #ddd;
 font-size:22px;
+cursor:pointer;
 }
 
 /* المحتوى */
@@ -84,15 +82,20 @@ box-shadow:0 2px 5px rgba(0,0,0,0.1);
 <div class="menu-btn" onclick="toggleMenu()">☰</div>
 </header>
 
+<!-- القائمة -->
 <div class="sidebar" id="side">
-<div onclick="show('home')">🏠 الرئيسي</div>
+<div onclick="show('home')">🏠 الرئيسية</div>
 <div onclick="show('dresses')">👗 فساتين</div>
 <div onclick="show('evening')">🌙 سهرة</div>
 </div>
 
+<!-- 🔥 بدون ترحيب - مباشرة منتجات -->
 <div class="content" id="content">
-<h2>أهلاً 👋</h2>
-<p>اضغط ☰</p>
+
+<div class="product">👗 فستان أطفال - 60 ريال</div>
+<div class="product">👗 فستان بناتي - 80 ريال</div>
+<div class="product">🌙 فستان سهرة - 150 ريال</div>
+
 </div>
 
 <script>
@@ -105,21 +108,23 @@ function show(type){
 let c=document.getElementById("content");
 
 if(type=="home"){
-c.innerHTML="<h2>الرئيسي</h2><p>كل المنتجات هنا</p>";
+c.innerHTML=`
+<div class="product">👗 فستان أطفال - 60 ريال</div>
+<div class="product">👗 فستان بناتي - 80 ريال</div>
+<div class="product">🌙 فستان سهرة - 150 ريال</div>
+`;
 }
 
 if(type=="dresses"){
 c.innerHTML=`
-<h2>فساتين</h2>
-<div class="product">فستان أطفال - 60</div>
-<div class="product">فستان بناتي - 80</div>
+<div class="product">👗 فستان أطفال - 60 ريال</div>
+<div class="product">👗 فستان بناتي - 80 ريال</div>
 `;
 }
 
 if(type=="evening"){
 c.innerHTML=`
-<h2>سهرة</h2>
-<div class="product">فستان سهرة - 150</div>
+<div class="product">🌙 فستان سهرة - 150 ريال</div>
 `;
 }
 
