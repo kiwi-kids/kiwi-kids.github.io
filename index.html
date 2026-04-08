@@ -7,38 +7,42 @@
 
 <style>
 body {
-    font-family: Arial;
     margin: 0;
+    font-family: Arial;
     background: #fff;
     text-align: center;
 }
 
-header {
-    background: #ffb6c1;
-    padding: 15px;
-    font-size: 24px;
-    color: white;
+/* الهيدر (الشعار) */
+.hero {
+    background: #ffe4ec;
+    padding: 30px 10px;
 }
 
-/* مهم: إلغاء أي حركة */
-* {
-    animation: none !important;
-    transition: none !important;
+.hero img {
+    width: 220px;
 }
 
+/* العنوان */
+h2 {
+    margin-top: 10px;
+}
+
+/* المنتجات */
 .products {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    margin: 20px;
+    padding: 10px;
 }
 
 .product {
     border: 1px solid #eee;
-    border-radius: 10px;
+    border-radius: 15px;
     margin: 10px;
-    width: 200px;
+    width: 180px;
     padding: 10px;
+    box-shadow: 0 0 10px #eee;
 }
 
 .product img {
@@ -46,13 +50,16 @@ header {
     border-radius: 10px;
 }
 
+/* زر الطلب */
 button {
     background: #ff69b4;
     border: none;
     color: white;
     padding: 10px;
     margin-top: 10px;
-    border-radius: 5px;
+    border-radius: 8px;
+    width: 100%;
+    font-size: 14px;
 }
 </style>
 
@@ -60,10 +67,14 @@ button {
 
 <body>
 
-<header>Kiwi Kids 👗</header>
+<!-- الشعار -->
+<div class="hero">
+    <img src="logo.png">
+</div>
 
-<h2>اهلا بكم في متجر كيوي ملابس اطفال</h2>
+<h2>اهلا بكم في متجر كيوي 👗</h2>
 
+<!-- المنتجات -->
 <div class="products">
 
 <div class="product">
@@ -75,7 +86,7 @@ button {
 
 <div class="product">
 <img src="dress2.jpg">
-<h3>فستان بناتي فراشة</h3>
+<h3>فستان فراشة</h3>
 <p>120 ريال</p>
 <button onclick="order()">اطلب الآن</button>
 </div>
