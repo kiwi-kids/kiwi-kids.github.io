@@ -2,6 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kiwi Kids</title>
 
 <style>
@@ -10,72 +11,66 @@ margin:0;
 font-family:Arial;
 direction:rtl;
 background:#f5f5f5;
-font-size:22px; /* 🔥 تكبير كل الكتابة */
+font-size:20px;
 }
 
 /* الهيدر */
 header{
 background:#4CAF50;
 color:white;
-padding:20px;
+padding:15px;
 display:flex;
 justify-content:space-between;
 align-items:center;
 }
 
-/* اسم المتجر */
-h1{
-font-size:28px;
-}
+h1{font-size:26px}
 
-/* زر ☰ */
+/* زر القائمة */
 .menu-btn{
-font-size:50px; /* 🔥 كبير وواضح */
+font-size:45px;
 cursor:pointer;
-padding:5px 15px;
 }
 
-/* القائمة الجانبية (مهم جدًا التعديل هنا) */
+/* 🔥 القائمة (أهم إصلاح) */
 .sidebar{
 position:fixed;
 top:0;
-right:0;              /* 🔥 تبدأ داخل الشاشة */
-width:280px;
+right:0;
+width:260px;
 height:100%;
 background:white;
-box-shadow:-3px 0 15px rgba(0,0,0,0.3);
-padding:25px;
-transform:translateX(100%); /* مخفية خارج الشاشة */
+box-shadow:-2px 0 10px rgba(0,0,0,0.3);
+padding:20px;
+
+/* مخفية بالكامل */
+transform:translateX(100%);
 transition:0.3s;
 z-index:999;
-font-size:24px; /* 🔥 تكبير النص داخل القائمة */
 }
 
-/* فتح القائمة */
 .sidebar.open{
 transform:translateX(0);
 }
 
 /* عناصر القائمة */
 .sidebar div{
-padding:18px;
+padding:15px;
 border-bottom:1px solid #ddd;
-cursor:pointer;
+font-size:22px;
 }
 
 /* المحتوى */
 .content{
-padding:25px;
-font-size:22px;
+padding:20px;
 }
 
-/* المنتجات */
+/* المنتج */
 .product{
 background:white;
 padding:15px;
 margin:10px;
-border-radius:12px;
-font-size:20px;
+border-radius:10px;
 box-shadow:0 2px 5px rgba(0,0,0,0.1);
 }
 
@@ -89,50 +84,45 @@ box-shadow:0 2px 5px rgba(0,0,0,0.1);
 <div class="menu-btn" onclick="toggleMenu()">☰</div>
 </header>
 
-<!-- القائمة -->
 <div class="sidebar" id="side">
 <div onclick="show('home')">🏠 الرئيسي</div>
 <div onclick="show('dresses')">👗 فساتين</div>
-<div onclick="show('evening')">🌙 فساتين سهرة</div>
+<div onclick="show('evening')">🌙 سهرة</div>
 </div>
 
-<!-- المحتوى -->
 <div class="content" id="content">
 <h2>أهلاً 👋</h2>
-<p>اضغط ☰ واختر قسم</p>
+<p>اضغط ☰</p>
 </div>
 
 <script>
 
-/* فتح وإغلاق القائمة (مهم) */
 function toggleMenu(){
 document.getElementById("side").classList.toggle("open");
 }
 
-/* الأقسام */
 function show(type){
 let c=document.getElementById("content");
 
-if(type==="home"){
-c.innerHTML="<h2>🏠 الرئيسي</h2><p>كل المنتجات هنا</p>";
+if(type=="home"){
+c.innerHTML="<h2>الرئيسي</h2><p>كل المنتجات هنا</p>";
 }
 
-if(type==="dresses"){
+if(type=="dresses"){
 c.innerHTML=`
-<h2>👗 فساتين</h2>
-<div class="product">فستان أطفال - 60 ريال</div>
-<div class="product">فستان بناتي - 80 ريال</div>
+<h2>فساتين</h2>
+<div class="product">فستان أطفال - 60</div>
+<div class="product">فستان بناتي - 80</div>
 `;
 }
 
-if(type==="evening"){
+if(type=="evening"){
 c.innerHTML=`
-<h2>🌙 فساتين سهرة</h2>
-<div class="product">فستان سهرة فاخر - 150 ريال</div>
+<h2>سهرة</h2>
+<div class="product">فستان سهرة - 150</div>
 `;
 }
 
-/* إغلاق القائمة */
 document.getElementById("side").classList.remove("open");
 }
 
