@@ -128,6 +128,7 @@ z-index:999;
 background:red;
 color:white;
 border:none;
+margin-right:5px;
 }
 </style>
 </head>
@@ -182,11 +183,16 @@ let products = JSON.parse(localStorage.getItem("products")) || [
 
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
-/* تسجيل دخول */
+/* تسجيل دخول (تم إصلاحه) */
 function login(){
-if(user.value==="admin" && pass.value==="1234"){
-login.style.display="none";
-admin.style.display="block";
+let u = document.getElementById("user").value;
+let p = document.getElementById("pass").value;
+
+if(u === "admin" && p === "1234"){
+document.getElementById("login").style.display="none";
+document.getElementById("admin").style.display="block";
+}else{
+alert("خطأ في البيانات");
 }
 }
 
@@ -202,7 +208,7 @@ html+=`
 <button class="add" onclick="add(${i})">أضف</button>
 </div>`;
 });
-productsDiv.innerHTML=html;
+document.getElementById("products").innerHTML=html;
 }
 
 /* إضافة للسلة */
@@ -230,9 +236,9 @@ total+=c.price*c.qty;
 count+=c.qty;
 });
 
-cart.innerHTML=html;
-totalSpan.innerText=total;
-countSpan.innerText=count;
+document.getElementById("cart").innerHTML=html;
+document.getElementById("total").innerText=total;
+document.getElementById("count").innerText=count;
 }
 
 /* حذف */
@@ -250,22 +256,22 @@ localStorage.setItem("cart",JSON.stringify(cart));
 
 /* فتح */
 function openCart(){
-cartBox.style.right="0";
-overlay.style.display="block";
+document.getElementById("cartBox").style.right="0";
+document.getElementById("overlay").style.display="block";
 }
 
 /* إغلاق */
 function closeCart(){
-cartBox.style.right="-350px";
-overlay.style.display="none";
+document.getElementById("cartBox").style.right="-350px";
+document.getElementById("overlay").style.display="none";
 }
 
 /* إضافة منتج */
 function addProduct(){
 products.push({
-name:name.value,
-price:Number(price.value),
-img:img.value
+name:document.getElementById("name").value,
+price:Number(document.getElementById("price").value),
+img:document.getElementById("img").value
 });
 save();
 render();
@@ -282,13 +288,6 @@ msg+=`${c.name} x${c.qty} = ${c.price*c.qty}%0A`;
 
 window.open("https://wa.me/"+phone+"?text="+msg);
 }
-
-/* IDs */
-let productsDiv=document.getElementById("products");
-let cartBox=document.getElementById("cartBox");
-let overlay=document.getElementById("overlay");
-let totalSpan=document.getElementById("total");
-let countSpan=document.getElementById("count");
 
 render();
 renderCart();
