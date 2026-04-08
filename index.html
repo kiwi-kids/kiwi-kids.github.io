@@ -17,7 +17,6 @@ header{
 background:#111;
 color:white;
 padding:15px;
-font-size:20px;
 text-align:center;
 }
 
@@ -47,7 +46,7 @@ padding:10px;
 border-radius:10px;
 }
 
-/* Grid */
+/* منتجات */
 .products{
 display:grid;
 grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
@@ -88,14 +87,12 @@ border-radius:50px;
 z-index:999;
 }
 
-/* عداد */
 #count{
 background:red;
 color:white;
 border-radius:50%;
 padding:3px 7px;
 font-size:12px;
-margin-right:5px;
 }
 
 /* السلة */
@@ -121,21 +118,19 @@ width:100%;
 height:100%;
 background:rgba(0,0,0,0.5);
 display:none;
-z-index:999;
 }
 
 .del{
 background:red;
 color:white;
 border:none;
-margin-right:5px;
 }
 </style>
 </head>
 
 <body>
 
-<header>🛍️ Kiwi Kids Ultimate</header>
+<header>🛍️ Kiwi Kids</header>
 
 <!-- تسجيل دخول -->
 <div id="login">
@@ -150,7 +145,10 @@ margin-right:5px;
 <h3>➕ إضافة منتج</h3>
 <input id="name" placeholder="اسم المنتج">
 <input id="price" placeholder="السعر">
-<input id="img" placeholder="رابط الصورة">
+
+<!-- 🔥 زر رفع صورة -->
+<input type="file" id="fileInput" accept="image/*">
+
 <button onclick="addProduct()">إضافة</button>
 </div>
 
@@ -168,7 +166,7 @@ margin-right:5px;
 <div id="cartBox">
 <h3>🛒 السلة</h3>
 <div id="cart"></div>
-<h4>الإجمالي: <span id="total">0</span> ريال</h4>
+<p>الإجمالي: <span id="total">0</span> ريال</p>
 <button onclick="checkout()" style="background:green;color:white;width:100%;padding:10px;">
 إتمام الطلب
 </button>
@@ -176,23 +174,19 @@ margin-right:5px;
 
 <script>
 
-let products = JSON.parse(localStorage.getItem("products")) || [
-{name:"فستان", price:150, img:"https://via.placeholder.com/300"},
-{name:"حذاء", price:90, img:"https://via.placeholder.com/300"}
-];
-
+let products = JSON.parse(localStorage.getItem("products")) || [];
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
-/* تسجيل دخول (تم إصلاحه) */
+/* تسجيل دخول */
 function login(){
-let u = document.getElementById("user").value;
-let p = document.getElementById("pass").value;
+let u=document.getElementById("user").value;
+let p=document.getElementById("pass").value;
 
-if(u === "admin" && p === "1234"){
-document.getElementById("login").style.display="none";
-document.getElementById("admin").style.display="block";
+if(u==="admin" && p==="1234"){
+login.style.display="none";
+admin.style.display="block";
 }else{
-alert("خطأ في البيانات");
+alert("خطأ");
 }
 }
 
@@ -208,10 +202,35 @@ html+=`
 <button class="add" onclick="add(${i})">أضف</button>
 </div>`;
 });
-document.getElementById("products").innerHTML=html;
+products.innerHTML=html;
 }
 
-/* إضافة للسلة */
+/* إضافة منتج */
+function addProduct(){
+let file=document.getElementById("fileInput").files[0];
+
+if(!file){
+alert("اختر صورة");
+return;
+}
+
+let reader=new FileReader();
+reader.onload=function(e){
+
+products.push({
+name:name.value,
+price:Number(price.value),
+img:e.target.result
+});
+
+save();
+render();
+};
+
+reader.readAsDataURL(file);
+}
+
+/* سلة */
 function add(i){
 let p=products[i];
 let f=cart.find(c=>c.name===p.name);
@@ -223,7 +242,6 @@ save();
 renderCart();
 }
 
-/* عرض السلة */
 function renderCart(){
 let html="";
 let total=0;
@@ -241,40 +259,26 @@ document.getElementById("total").innerText=total;
 document.getElementById("count").innerText=count;
 }
 
-/* حذف */
 function del(i){
 cart.splice(i,1);
 save();
 renderCart();
 }
 
-/* حفظ */
 function save(){
 localStorage.setItem("products",JSON.stringify(products));
 localStorage.setItem("cart",JSON.stringify(cart));
 }
 
-/* فتح */
+/* سلة */
 function openCart(){
-document.getElementById("cartBox").style.right="0";
-document.getElementById("overlay").style.display="block";
+cartBox.style.right="0";
+overlay.style.display="block";
 }
 
-/* إغلاق */
 function closeCart(){
-document.getElementById("cartBox").style.right="-350px";
-document.getElementById("overlay").style.display="none";
-}
-
-/* إضافة منتج */
-function addProduct(){
-products.push({
-name:document.getElementById("name").value,
-price:Number(document.getElementById("price").value),
-img:document.getElementById("img").value
-});
-save();
-render();
+cartBox.style.right="-350px";
+overlay.style.display="none";
 }
 
 /* واتساب */
@@ -283,7 +287,7 @@ let phone="966500000000";
 let msg="طلب جديد:%0A";
 
 cart.forEach(c=>{
-msg+=`${c.name} x${c.qty} = ${c.price*c.qty}%0A`;
+msg+=`${c.name} x${c.qty}%0A`;
 });
 
 window.open("https://wa.me/"+phone+"?text="+msg);
