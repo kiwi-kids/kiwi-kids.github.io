@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kiwi Kids Ultimate</title>
+<title>Kiwi Kids Pro</title>
 
 <style>
 body{
@@ -80,19 +80,20 @@ button{
 
 .add{background:#ff69b4;color:white}
 .del{background:red;color:white}
-.cartBtn{background:#4facfe;color:white}
 
 /* السلة */
 #cartBox{
     position:fixed;
     bottom:10px;
     left:10px;
-    width:240px;
+    width:260px;
     background:white;
     padding:10px;
     border-radius:12px;
     box-shadow:0 0 10px #ccc;
     font-size:13px;
+    max-height:300px;
+    overflow:auto;
 }
 
 /* واتساب */
@@ -112,7 +113,7 @@ button{
 <body>
 
 <header>
-<h2>Kiwi Kids Ultimate 🥝</h2>
+<h2>Kiwi Kids Pro 🥝</h2>
 </header>
 
 <!-- تسجيل دخول -->
@@ -125,10 +126,10 @@ button{
 
 <!-- لوحة الأدمن -->
 <div id="admin">
-<h3>إدارة المنتجات</h3>
+<h3>إضافة منتج</h3>
 <input id="name" placeholder="اسم المنتج">
-<input id="price" placeholder="السعر">
-<input id="img" placeholder="الصورة">
+<input id="price" placeholder="السعر (أرقام فقط)">
+<input id="img" placeholder="رابط الصورة">
 <button onclick="addProduct()" style="background:green;color:white;">إضافة</button>
 </div>
 
@@ -149,8 +150,8 @@ button{
 <script>
 
 let products = JSON.parse(localStorage.getItem("products")) || [
-    {name:"فستان بناتي", price:180, img:"dress1.jpg"},
-    {name:"فستان فراشة", price:120, img:"dress2.jpg"}
+    {name:"فستان بناتي", price:180, img:"https://via.placeholder.com/300"},
+    {name:"فستان فراشة", price:120, img:"https://via.placeholder.com/300"}
 ];
 
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
@@ -164,7 +165,7 @@ function login(){
         document.getElementById("loginBox").style.display="none";
         document.getElementById("admin").style.display="block";
     }else{
-        alert("خطأ");
+        alert("خطأ في الدخول");
     }
 }
 
@@ -177,7 +178,7 @@ function render(){
             <img src="${p.img}">
             <h4>${p.name}</h4>
             <p>${p.price} ريال</p>
-            <button class="add" onclick="addCart(${i})">إضافة</button>
+            <button class="add" onclick="addCart(${i})">إضافة للسلة</button>
             <button class="del" onclick="del(${i})">حذف</button>
         </div>`;
     });
@@ -193,16 +194,25 @@ function del(i){
 
 /* إضافة منتج */
 function addProduct(){
+    let price = Number(document.getElementById("price").value);
+
+    if(!price){
+        alert("اكتب سعر صحيح");
+        return;
+    }
+
     products.push({
         name:document.getElementById("name").value,
-        price:document.getElementById("price").value,
+        price:price,
         img:document.getElementById("img").value
     });
+
     save();
     render();
+    alert("تم إضافة المنتج ✔️");
 }
 
-/* سلة */
+/* إضافة للسلة */
 function addCart(i){
     let item = products[i];
 
@@ -250,6 +260,11 @@ function save(){
 function checkout(){
     let phone="966537585439";
     let msg="طلب جديد:%0A";
+
+    if(cart.length===0){
+        alert("السلة فاضية");
+        return;
+    }
 
     cart.forEach(c=>{
         msg+=`${c.name} x${c.qty} = ${c.price*c.qty}%0A`;
