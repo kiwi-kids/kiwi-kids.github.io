@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kiwi Kids Ultimate Pro Max</title>
+<title>Kiwi Kids Store Pro</title>
 
 <style>
 body{
@@ -17,7 +17,6 @@ header{
 background:linear-gradient(135deg,#ff6a88,#ff99ac);
 color:white;
 padding:15px;
-font-size:18px;
 font-weight:bold;
 }
 
@@ -60,102 +59,83 @@ cursor:pointer;
 }
 
 .add{background:#ff69b4;color:white}
-.del{background:red;color:white}
 
-/* أدمن */
-#admin{
-display:none;
-background:white;
-margin:10px;
-padding:10px;
-border-radius:12px;
-box-shadow:0 0 10px #ddd;
-}
-
-/* سلة */
-#cartBox{
+/* زر السلة */
+#cartBtn{
 position:fixed;
-bottom:10px;
-left:10px;
-width:260px;
-background:white;
-padding:10px;
-border-radius:12px;
-box-shadow:0 0 10px #ccc;
-font-size:13px;
-max-height:300px;
-overflow:auto;
-}
-
-/* واتساب */
-.whatsapp{
-position:fixed;
-bottom:10px;
-right:10px;
-background:#25D366;
+bottom:20px;
+right:20px;
+background:#111;
 color:white;
-padding:12px;
+padding:12px 15px;
 border-radius:50px;
-text-decoration:none;
+cursor:pointer;
+z-index:1001;
 }
 
-/* نافذة */
-#modal{
-display:none;
+/* الخلفية */
+#overlay{
 position:fixed;
-top:0;left:0;
+top:0;
+left:0;
 width:100%;
 height:100%;
-background:rgba(0,0,0,0.6);
+background:rgba(0,0,0,0.5);
+display:none;
+z-index:999;
 }
 
-#modalContent{
+/* السلة الجانبية */
+#cartBox{
+position:fixed;
+top:0;
+right:-320px;
+width:280px;
+height:100%;
 background:white;
-width:300px;
-margin:120px auto;
+box-shadow:-5px 0 15px rgba(0,0,0,0.2);
 padding:15px;
-border-radius:15px;
+transition:0.3s;
+z-index:1000;
+overflow:auto;
+text-align:left;
 }
+
+.del{background:red;color:white}
 </style>
 </head>
 
 <body>
 
-<header>🛍️ Kiwi Kids Ultimate Pro Max</header>
+<header>🛍️ Kiwi Kids Store</header>
 
 <input id="search" placeholder="ابحث عن منتج..." onkeyup="render()">
 
-<!-- أدمن -->
-<div id="admin">
-<h3>إضافة منتج</h3>
-<input id="name" placeholder="اسم المنتج">
-<input id="price" placeholder="السعر">
-<input id="img" placeholder="رابط الصورة">
-<button onclick="addProduct()" style="background:green;color:white;">إضافة</button>
-</div>
-
-<!-- منتجات -->
+<!-- المنتجات -->
 <div class="products" id="products"></div>
 
-<!-- سلة -->
+<!-- زر السلة -->
+<div id="cartBtn" onclick="openCart()">🛒 السلة</div>
+
+<!-- خلفية -->
+<div id="overlay" onclick="closeCart()"></div>
+
+<!-- السلة -->
 <div id="cartBox">
-<b>🛒 السلة</b>
+<h3>🛒 السلة</h3>
+
 <div id="cart"></div>
+
 <p>الإجمالي: <span id="total">0</span> ريال</p>
-<button onclick="checkout()" style="background:orange;color:white;">إتمام الطلب</button>
-</div>
 
-<!-- واتساب -->
-<a class="whatsapp" onclick="checkout()">واتساب 📱</a>
+<button onclick="checkout()" style="background:orange;color:white;">
+إتمام الطلب
+</button>
 
-<!-- نافذة المنتج -->
-<div id="modal" onclick="closeModal()">
-<div id="modalContent" onclick="event.stopPropagation()">
-<h3 id="mName"></h3>
-<img id="mImg" style="width:100%;border-radius:10px;">
-<p id="mPrice"></p>
-<button onclick="addModal()" style="background:green;color:white;">إضافة للسلة</button>
-</div>
+<br><br>
+<button onclick="closeCart()" style="background:#ccc;">
+إغلاق
+</button>
 </div>
 
 <script>
@@ -168,9 +148,7 @@ let products = JSON.parse(localStorage.getItem("products")) || [
 
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
-let selected=null;
-
-/* عرض */
+/* عرض المنتجات */
 function render(){
 let s=document.getElementById("search").value.toLowerCase();
 let html="";
@@ -179,11 +157,10 @@ products.forEach((p,i)=>{
 if(p.name.toLowerCase().includes(s)){
 html+=`
 <div class="card">
-<img src="${p.img}" onclick="openModal(${i})">
+<img src="${p.img}">
 <h4>${p.name}</h4>
 <p>${p.price} ريال</p>
 <button class="add" onclick="addCart(${i})">إضافة</button>
-<button class="del" onclick="del(${i})">حذف</button>
 </div>`;
 }
 });
@@ -191,53 +168,30 @@ html+=`
 document.getElementById("products").innerHTML=html;
 }
 
-/* مودال */
-function openModal(i){
-selected=products[i];
-document.getElementById("mName").innerText=selected.name;
-document.getElementById("mPrice").innerText=selected.price+" ريال";
-document.getElementById("mImg").src=selected.img;
-document.getElementById("modal").style.display="block";
-}
-
-function closeModal(){
-document.getElementById("modal").style.display="none";
-}
-
-function addModal(){
-addCartByObj(selected);
-closeModal();
-}
-
 /* إضافة للسلة */
 function addCart(i){
-addCartByObj(products[i]);
+let item=products[i];
+
+let found=cart.find(c=>c.name===item.name);
+if(found){
+found.qty++;
+}else{
+cart.push({...item,qty:1});
 }
 
-function addCartByObj(item){
-let f=cart.find(c=>c.name===item.name);
-if(f) f.qty++;
-else cart.push({...item,qty:1});
 save();
 renderCart();
 }
 
-/* حذف منتج */
-function del(i){
-products.splice(i,1);
-save();
-render();
-}
-
-/* سلة */
+/* عرض السلة */
 function renderCart(){
 let html="";
 let total=0;
 
 cart.forEach((c,i)=>{
 html+=`
-${c.name} x${c.qty} = ${c.price*c.qty}
-<button onclick="remove(${i})" style="background:red;color:white;">X</button><br>`;
+${c.name} x${c.qty}
+<button class="del" onclick="removeItem(${i})">X</button><br>`;
 total+=c.price*c.qty;
 });
 
@@ -245,27 +199,29 @@ document.getElementById("cart").innerHTML=html;
 document.getElementById("total").innerText=total;
 }
 
-function remove(i){
+/* حذف */
+function removeItem(i){
 cart.splice(i,1);
 save();
 renderCart();
-}
-
-/* إضافة منتج */
-function addProduct(){
-products.push({
-name:name.value,
-price:Number(price.value),
-img:img.value
-});
-save();
-render();
 }
 
 /* حفظ */
 function save(){
 localStorage.setItem("products",JSON.stringify(products));
 localStorage.setItem("cart",JSON.stringify(cart));
+}
+
+/* فتح السلة */
+function openCart(){
+document.getElementById("cartBox").style.right="0";
+document.getElementById("overlay").style.display="block";
+}
+
+/* إغلاق */
+function closeCart(){
+document.getElementById("cartBox").style.right="-320px";
+document.getElementById("overlay").style.display="none";
 }
 
 /* واتساب */
@@ -287,6 +243,7 @@ window.open("https://wa.me/"+phone+"?text="+msg);
 
 render();
 renderCart();
+
 </script>
 
 </body>
