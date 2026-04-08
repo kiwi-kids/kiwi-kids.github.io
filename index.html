@@ -1,339 +1,64 @@
-تمام 👌 خلّيني أبني لك **نسخة أقوى واحترافية أكثر** من المتجر — جاهزة للبيع تقريبًا 🔥
-(فيها تحسين شكل + إدارة منتجات + سلة + حفظ + واتساب)
-
----
-
-## 🛍️ متجر Kiwi Kids (نسخة احترافية محسّنة)
-
-انسخ الكود كامل 👇 واحفظه `index.html`
-
-```html id="prostore02"
 <!DOCTYPE html>
-<html lang="ar">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kiwi Kids Store</title>
-
+<title>Kiwi Kids</title>
 <style>
-body{
-margin:0;
-font-family:Tahoma;
-background:#f1f2f6;
-direction:rtl;
-}
-
-/* الهيدر */
-header{
-background:#111;
-color:#fff;
-padding:15px;
-text-align:center;
-font-size:22px;
-}
-
-/* البحث */
-#search{
-width:90%;
-margin:10px auto;
-display:block;
-padding:12px;
-border-radius:10px;
-border:1px solid #ccc;
-}
-
-/* المنتجات */
-.products{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-gap:15px;
-padding:15px;
-}
-
-.card{
-background:#fff;
-border-radius:15px;
-overflow:hidden;
-box-shadow:0 5px 15px rgba(0,0,0,0.1);
-}
-
-.card img{
-width:100%;
-height:160px;
-object-fit:cover;
-}
-
-.card h4{
-margin:10px;
-}
-
-.price{
-color:green;
-font-weight:bold;
-margin:0 10px;
-}
-
-.add{
-margin:10px;
-padding:10px;
-background:#ff4757;
-color:white;
-border:none;
-border-radius:8px;
-width:90%;
-cursor:pointer;
-}
-
-/* زر السلة */
-#cartBtn{
-position:fixed;
-bottom:20px;
-right:20px;
-background:#111;
-color:white;
-padding:12px 15px;
-border-radius:50px;
-cursor:pointer;
-}
-
-#count{
-background:red;
-border-radius:50%;
-padding:3px 8px;
-font-size:12px;
-}
-
-/* السلة */
-#cartBox{
-position:fixed;
-top:0;
-right:-350px;
-width:300px;
-height:100%;
-background:white;
-box-shadow:-5px 0 20px rgba(0,0,0,0.2);
-padding:15px;
-transition:0.3s;
-overflow:auto;
-}
-
-#overlay{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:rgba(0,0,0,0.4);
-display:none;
-}
-
-.del{
-background:red;
-color:white;
-border:none;
-}
-
-/* الأدمن */
-#admin{
-background:white;
-margin:10px;
-padding:10px;
-border-radius:10px;
-}
-
-input{
-padding:8px;
-margin:5px;
-border-radius:6px;
-border:1px solid #ccc;
-}
+body {font-family:Arial; text-align:center; margin:0;}
+header {background:#4CAF50; color:white; padding:15px;}
+.login-box {margin-top:50px;}
+input {padding:10px; margin:5px;}
+button {padding:10px 20px; background:green; color:white; border:none; cursor:pointer;}
+#store {display:none; padding:20px;}
+.product {border:1px solid #ccc; padding:10px; margin:10px; display:inline-block;}
 </style>
 </head>
 
 <body>
 
-<header>🛍️ Kiwi Kids Store</header>
+<header>
+<h1>Kiwi Kids</h1>
+</header>
 
-<input id="search" placeholder="ابحث عن منتج..." onkeyup="render()">
-
-<!-- لوحة التحكم -->
-<div id="admin">
-<h3>➕ إضافة منتج</h3>
-<input id="name" placeholder="اسم المنتج">
-<input id="price" placeholder="السعر">
-<input id="img" placeholder="رابط الصورة">
-<button onclick="addProduct()">إضافة</button>
+<!-- تسجيل الدخول -->
+<div class="login-box" id="loginBox">
+<h2>دخول الأدمن</h2>
+<input type="text" id="user" placeholder="اسم المستخدم"><br>
+<input type="password" id="pass" placeholder="كلمة المرور"><br>
+<button onclick="login()">دخول</button>
 </div>
 
-<!-- المنتجات -->
-<div class="products" id="products"></div>
-
-<!-- زر السلة -->
-<div id="cartBtn" onclick="openCart()">
-🛒 <span id="count">0</span>
-</div>
-
-<!-- خلفية -->
-<div id="overlay" onclick="closeCart()"></div>
-
-<!-- السلة -->
-<div id="cartBox">
-<h3>🛒 السلة</h3>
-<div id="cart"></div>
-<h4>الإجمالي: <span id="total">0</span> ريال</h4>
-
-<button onclick="checkout()" style="background:green;color:white;width:100%;padding:10px;">
-إتمام الطلب
-</button>
+<!-- المتجر -->
+<div id="store">
+<h2>المتجر</h2>
+<button onclick="addProduct()">➕ إضافة منتج</button>
+<div id="products"></div>
 </div>
 
 <script>
+function login(){
+  var u = document.getElementById("user").value;
+  var p = document.getElementById("pass").value;
 
-let products = JSON.parse(localStorage.getItem("products")) || [
-{name:"فستان", price:150, img:"https://via.placeholder.com/300"},
-{name:"حذاء", price:90, img:"https://via.placeholder.com/300"}
-];
-
-let cart = JSON.parse(localStorage.getItem("cart")) || [];
-
-/* عرض */
-function render(){
-let s=search.value.toLowerCase();
-let html="";
-
-products.forEach((p,i)=>{
-if(p.name.toLowerCase().includes(s)){
-html+=`
-<div class="card">
-<img src="${p.img}">
-<h4>${p.name}</h4>
-<p class="price">${p.price} ريال</p>
-<button class="add" onclick="addToCart(${i})">أضف للسلة</button>
-</div>`;
-}
-});
-
-productsDiv.innerHTML=html;
+  if(u === "admin" && p === "1234"){
+    document.getElementById("loginBox").style.display="none";
+    document.getElementById("store").style.display="block";
+  } else {
+    alert("بيانات غلط ❌");
+  }
 }
 
-/* إضافة للسلة */
-function addToCart(i){
-let p=products[i];
-let f=cart.find(c=>c.name===p.name);
-
-if(f) f.qty++;
-else cart.push({...p,qty:1});
-
-save();
-renderCart();
-}
-
-/* عرض السلة */
-function renderCart(){
-let html="";
-let total=0;
-let count=0;
-
-cart.forEach((c,i)=>{
-html+=`${c.name} x${c.qty}
-<button class="del" onclick="removeItem(${i})">X</button><br>`;
-total+=c.price*c.qty;
-count+=c.qty;
-});
-
-cartDiv.innerHTML=html;
-totalSpan.innerText=total;
-countSpan.innerText=count;
-}
-
-/* حذف */
-function removeItem(i){
-cart.splice(i,1);
-save();
-renderCart();
-}
-
-/* حفظ */
-function save(){
-localStorage.setItem("products",JSON.stringify(products));
-localStorage.setItem("cart",JSON.stringify(cart));
-}
-
-/* فتح السلة */
-function openCart(){
-cartBox.style.right="0";
-overlay.style.display="block";
-}
-
-/* إغلاق */
-function closeCart(){
-cartBox.style.right="-350px";
-overlay.style.display="none";
-}
-
-/* إضافة منتج */
 function addProduct(){
-products.push({
-name:name.value,
-price:Number(price.value),
-img:img.value
-});
-save();
-render();
+  var name = prompt("اسم المنتج:");
+  var price = prompt("السعر:");
+
+  if(name && price){
+    var div = document.createElement("div");
+    div.className = "product";
+    div.innerHTML = "<h3>"+name+"</h3><p>"+price+" ريال</p>";
+    document.getElementById("products").appendChild(div);
+  }
 }
-
-/* واتساب */
-function checkout(){
-let phone="966500000000";
-let msg="طلب جديد:%0A";
-
-cart.forEach(c=>{
-msg+=`${c.name} x${c.qty} = ${c.price*c.qty}%0A`;
-});
-
-window.open("https://wa.me/"+phone+"?text="+msg);
-}
-
-/* عناصر */
-let productsDiv=document.getElementById("products");
-let cartDiv=document.getElementById("cart");
-let totalSpan=document.getElementById("total");
-let countSpan=document.getElementById("count");
-let cartBox=document.getElementById("cartBox");
-let overlay=document.getElementById("overlay");
-
-/* تشغيل */
-render();
-renderCart();
-
 </script>
 
 </body>
 </html>
-```
-
----
-
-## 🔥 هذا الإصدار فيه:
-
-* تصميم أجمل ✨
-* سلة احترافية 🛒
-* حفظ تلقائي 💾
-* إضافة منتجات
-* بحث سريع 🔍
-* طلب واتساب مباشر 📲
-
----
-
-## 📌 الخطوة الجاية (مهم)
-
-إذا تبغاه **متجر حقيقي 100%**:
-
-* نرفعه على الإنترنت 🌐
-* نربط دفع (مدى / Apple Pay) 💳
-* نخلي عندك لوحة تحكم كاملة
-
----
-
-قولّي 👇
-**تبغى أربطه لك بالدفع وأخليه متجر رسمي تبيع منه؟ 🔥**
