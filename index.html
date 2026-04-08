@@ -1,15 +1,4 @@
 <!DOCTYPE html>
-<html>
-<head>
-<title>Kiwi Kids</title>
-</head>
-
-<body style="text-align:center; font-family:Arial;">
-<h1>  Kiwi</h1>
-<marquee direction="right"><h1>   <font face="Andalus" size="6"اهلا بكم في متجر كيوي ملابس اطفال  >
-</body>
-</html>
-<!DOCTYPE html>
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
@@ -21,14 +10,20 @@ body {
     font-family: Arial;
     margin: 0;
     background: #fff;
+    text-align: center;
 }
 
 header {
     background: #ffb6c1;
     padding: 15px;
-    text-align: center;
     font-size: 24px;
     color: white;
+}
+
+/* مهم: إلغاء أي حركة */
+* {
+    animation: none !important;
+    transition: none !important;
 }
 
 .products {
@@ -43,7 +38,6 @@ header {
     border-radius: 10px;
     margin: 10px;
     width: 200px;
-    text-align: center;
     padding: 10px;
 }
 
@@ -59,7 +53,6 @@ button {
     padding: 10px;
     margin-top: 10px;
     border-radius: 5px;
-    cursor: pointer;
 }
 </style>
 
@@ -68,6 +61,8 @@ button {
 <body>
 
 <header>Kiwi Kids 👗</header>
+
+<h2>اهلا بكم في متجر كيوي ملابس اطفال</h2>
 
 <div class="products">
 
@@ -80,7 +75,7 @@ button {
 
 <div class="product">
 <img src="dress2.jpg">
-<h3>فستان بناتي فراشه </h3>
+<h3>فستان بناتي فراشة</h3>
 <p>120 ريال</p>
 <button onclick="order()">اطلب الآن</button>
 </div>
