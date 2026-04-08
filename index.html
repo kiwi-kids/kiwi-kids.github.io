@@ -20,6 +20,7 @@ padding:15px;
 font-weight:bold;
 }
 
+/* بحث */
 #search{
 width:85%;
 padding:10px;
@@ -28,17 +29,16 @@ border-radius:10px;
 border:1px solid #ddd;
 }
 
-/* منتجات */
+/* 🔥 شبكة المنتجات (أكثر من صف) */
 .products{
-display:flex;
-flex-wrap:wrap;
-justify-content:center;
+display:grid;
+grid-template-columns:repeat(auto-fit, minmax(150px, 1fr));
+gap:10px;
+padding:10px;
 }
 
 .card{
-width:170px;
 background:white;
-margin:10px;
 padding:10px;
 border-radius:15px;
 box-shadow:0 0 10px #ddd;
@@ -107,7 +107,7 @@ text-align:left;
 
 <body>
 
-<header>🛍️ Kiwi Kids Store</header>
+<header>🛍️ Kiwi Kids Store Pro Grid</header>
 
 <input id="search" placeholder="ابحث عن منتج..." onkeyup="render()">
 
@@ -117,7 +117,7 @@ text-align:left;
 <!-- زر السلة -->
 <div id="cartBtn" onclick="openCart()">🛒 السلة</div>
 
-<!-- خلفية -->
+<!-- الخلفية -->
 <div id="overlay" onclick="closeCart()"></div>
 
 <!-- السلة -->
@@ -143,7 +143,9 @@ text-align:left;
 let products = JSON.parse(localStorage.getItem("products")) || [
 {name:"فستان بناتي", price:180, img:"https://via.placeholder.com/300"},
 {name:"حذاء أطفال", price:90, img:"https://via.placeholder.com/300"},
-{name:"طقم أطفال", price:150, img:"https://via.placeholder.com/300"}
+{name:"طقم أطفال", price:150, img:"https://via.placeholder.com/300"},
+{name:"تيشيرت أطفال", price:110, img:"https://via.placeholder.com/300"},
+{name:"قبعة أطفال", price:60, img:"https://via.placeholder.com/300"}
 ];
 
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
