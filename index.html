@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kiwi Kids Pro Fix</title>
+<title>Kiwi Kids Pro Store</title>
 
 <style>
 body{
@@ -23,15 +23,14 @@ justify-content:space-between;
 align-items:center;
 }
 
-/* الشبكة */
+/* شبكة */
 .grid{
 display:grid;
-grid-template-columns:repeat(3, 1fr);
+grid-template-columns:repeat(3,1fr);
 gap:10px;
 padding:10px;
 }
 
-/* كرت */
 .card{
 background:white;
 border-radius:12px;
@@ -49,22 +48,20 @@ object-fit:cover;
 .price{
 color:green;
 font-weight:bold;
-margin:5px;
 }
 
-/* زر */
 button{
 background:#4CAF50;
 color:white;
 border:none;
 padding:6px;
 width:90%;
-margin-bottom:8px;
+margin:5px;
 border-radius:6px;
 cursor:pointer;
 }
 
-/* 🔥 السلة (Fixed صح) */
+/* السلة */
 .cart{
 position:fixed;
 left:0;
@@ -97,9 +94,34 @@ margin-top:10px;
 
 .whatsapp{
 background:#25D366;
-margin-top:10px;
 }
 
+/* شاشة الدخول */
+.login{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:#000000cc;
+display:flex;
+justify-content:center;
+align-items:center;
+z-index:1000;
+}
+
+.login-box{
+background:white;
+padding:20px;
+border-radius:10px;
+text-align:center;
+}
+
+input{
+width:90%;
+padding:8px;
+margin:5px;
+}
 </style>
 </head>
 
@@ -110,11 +132,29 @@ margin-top:10px;
 <div onclick="toggleCart()">🛒</div>
 </header>
 
+<!-- تسجيل دخول -->
+<div class="login" id="login">
+<div class="login-box">
+<h3>تسجيل دخول الأدمن</h3>
+<input type="password" id="pass" placeholder="كلمة السر">
+<button onclick="login()">دخول</button>
+</div>
+</div>
+
+<!-- أدمن -->
+<div style="padding:10px;display:none" id="adminPanel">
+<h3>إضافة منتج</h3>
+<input id="name" placeholder="اسم المنتج">
+<input id="price" placeholder="السعر">
+<input id="img" placeholder="رابط الصورة">
+<button onclick="addProduct()">إضافة</button>
+</div>
+
 <!-- السلة -->
 <div class="cart" id="cart">
 <h3>السلة</h3>
 <div id="items"></div>
-<div class="total" id="total">الإجمالي: 0</div>
+<div class="total" id="total">0</div>
 <button class="whatsapp" onclick="order()">اطلب واتساب</button>
 </div>
 
@@ -123,39 +163,50 @@ margin-top:10px;
 
 <script>
 
-/* منتجات */
-const products=[
+let products=JSON.parse(localStorage.getItem("products"))||[
 { name:"فستان أطفال", price:60, img:"https://via.placeholder.com/300" },
-{ name:"فستان بناتي", price:80, img:"https://via.placeholder.com/300" },
-{ name:"فستان سهرة", price:150, img:"https://via.placeholder.com/300" },
-{ name:"طقم أطفال", price:90, img:"https://via.placeholder.com/300" },
-{ name:"عباية بناتي", price:70, img:"https://via.placeholder.com/300" },
-{ name:"فستان مناسبات", price:120, img:"https://via.placeholder.com/300" }
+{ name:"فستان بناتي", price:80, img:"https://via.placeholder.com/300" }
 ];
 
-let cart=[];
+let cart=JSON.parse(localStorage.getItem("cart"))||[];
 let total=0;
 
-/* تحميل المنتجات */
+/* كلمة السر */
+function login(){
+let p=document.getElementById("pass").value;
+
+if(p==="1234"){
+document.getElementById("login").style.display="none";
+document.getElementById("adminPanel").style.display="block";
+load();
+}else{
+alert("كلمة السر غلط ❌");
+}
+}
+
+/* عرض المنتجات */
 function load(){
 let g=document.getElementById("grid");
 g.innerHTML="";
 
-products.forEach(p=>{
+products.forEach((p,i)=>{
 g.innerHTML+=`
 <div class="card">
 <img src="${p.img}">
 <p>${p.name}</p>
 <div class="price">${p.price} ريال</div>
-<button onclick="add('${p.name}',${p.price})">أضف للسلة</button>
+<button onclick="add(${i})">أضف للسلة</button>
 </div>
 `;
 });
+
+render();
 }
 
 /* إضافة للسلة */
-function add(name,price){
-cart.push({name,price});
+function add(i){
+cart.push(products[i]);
+localStorage.setItem("cart",JSON.stringify(cart));
 render();
 }
 
@@ -166,23 +217,37 @@ box.innerHTML="";
 total=0;
 
 cart.forEach(c=>{
-box.innerHTML+=`<div class="item">${c.name} - ${c.price} ريال</div>`;
+box.innerHTML+=`<div class="item">${c.name} - ${c.price}</div>`;
 total+=c.price;
 });
 
 document.getElementById("total").innerText="الإجمالي: "+total;
 }
 
-/* فتح/إغلاق السلة */
+/* السلة */
 function toggleCart(){
 document.getElementById("cart").classList.toggle("open");
 }
 
-/* طلب واتساب */
+/* إضافة منتج */
+function addProduct(){
+let n=document.getElementById("name").value;
+let p=document.getElementById("price").value;
+let i=document.getElementById("img").value;
+
+products.push({name:n,price:Number(p),img:i});
+localStorage.setItem("products",JSON.stringify(products));
+
+load();
+alert("تمت الإضافة 🛍️");
+}
+
+/* واتساب */
 function order(){
 let msg="طلب جديد:%0A";
+
 cart.forEach(c=>{
-msg+=c.name+" - "+c.price+" ريال%0A";
+msg+=c.name+" - "+c.price+"%0A";
 });
 msg+="الإجمالي: "+total;
 
