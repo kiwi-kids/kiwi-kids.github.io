@@ -5,7 +5,13 @@
 <title>Kiwi Kids</title>
 
 <style>
-body {font-family:Arial; margin:0; direction:rtl; background:#f5f5f5;}
+body{
+margin:0;
+font-family:Arial;
+direction:rtl;
+background:#f5f5f5;
+font-size:18px; /* 🔥 تكبير الخط الأساسي */
+}
 
 /* الهيدر */
 header{
@@ -17,44 +23,60 @@ justify-content:space-between;
 align-items:center;
 }
 
-/* زر الثلاث خطوط */
+/* اسم المتجر */
+header h1{
+font-size:26px; /* 🔥 تكبير العنوان */
+}
+
+/* زر القائمة (☰) */
 .menu-btn{
-font-size:26px;
+font-size:34px; /* 🔥 تكبير الثلاث خطوط */
 cursor:pointer;
+padding:5px 10px;
 }
 
 /* القائمة الجانبية */
 .sidebar{
 position:fixed;
 top:0;
-right:-250px;
-width:250px;
+right:-280px;
+width:280px;
 height:100%;
 background:white;
-box-shadow:-2px 0 5px rgba(0,0,0,0.2);
+box-shadow:-2px 0 10px rgba(0,0,0,0.2);
 padding:20px;
 transition:0.3s;
+font-size:20px; /* 🔥 تكبير النص داخل القائمة */
 }
 
 .sidebar div{
-padding:10px;
+padding:15px;
 border-bottom:1px solid #ddd;
 cursor:pointer;
 }
 
-/* المنتجات */
-.products{
+/* المحتوى */
+.content{
 padding:20px;
+font-size:18px;
 }
 
+/* المنتجات */
 .product{
 background:white;
+padding:15px;
 margin:10px;
-padding:10px;
-border-radius:10px;
+border-radius:12px;
+font-size:18px;
+box-shadow:0 2px 5px rgba(0,0,0,0.1);
+}
+
+.product h3{
+font-size:20px;
 }
 
 </style>
+
 </head>
 
 <body>
@@ -66,60 +88,48 @@ border-radius:10px;
 
 <!-- القائمة -->
 <div class="sidebar" id="sidebar">
-
-<div onclick="showSection('home')">🏠 الرئيسي</div>
-<div onclick="showSection('dresses')">👗 فساتين</div>
-<div onclick="showSection('evening')">🌙 فساتين سهرة</div>
-
+<div onclick="show('home')">🏠 الرئيسي</div>
+<div onclick="show('dresses')">👗 فساتين</div>
+<div onclick="show('evening')">🌙 فساتين سهرة</div>
 </div>
 
 <!-- المحتوى -->
-<div class="products" id="content">
-
-<h2>أهلاً بك في المتجر 👋</h2>
-<p>اختر قسم من القائمة</p>
-
+<div class="content" id="content">
+<h2>أهلاً 👋</h2>
+<p>اضغط ☰ واختر قسم</p>
 </div>
 
 <script>
 
-// فتح وإغلاق القائمة
 function toggleMenu(){
-let s = document.getElementById("sidebar");
-if(s.style.right=="0px"){
-s.style.right="-250px";
-}else{
-s.style.right="0px";
-}
+let s=document.getElementById("sidebar");
+s.style.right = (s.style.right=="0px") ? "-280px" : "0px";
 }
 
-// عرض الأقسام
-function showSection(section){
-
-let c = document.getElementById("content");
+function show(section){
+let c=document.getElementById("content");
 
 if(section==="home"){
-c.innerHTML = "<h2>🏠 الرئيسي</h2><p>كل المنتجات العامة</p>";
+c.innerHTML="<h2>🏠 الرئيسي</h2><p>كل المنتجات تظهر هنا</p>";
 }
 
 if(section==="dresses"){
-c.innerHTML = `
+c.innerHTML=`
 <h2>👗 فساتين</h2>
-<div class="product">فستان بناتي - 80 ريال</div>
 <div class="product">فستان أطفال - 60 ريال</div>
+<div class="product">فستان بناتي - 80 ريال</div>
 `;
 }
 
 if(section==="evening"){
-c.innerHTML = `
+c.innerHTML=`
 <h2>🌙 فساتين سهرة</h2>
 <div class="product">فستان سهرة فاخر - 150 ريال</div>
 <div class="product">فستان مناسبات - 120 ريال</div>
 `;
 }
 
-// إغلاق القائمة بعد الاختيار
-document.getElementById("sidebar").style.right="-250px";
+document.getElementById("sidebar").style.right="-280px";
 }
 
 </script>
