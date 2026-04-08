@@ -1,92 +1,127 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta charset="UTF-8">
 <title>Kiwi Kids</title>
+
 <style>
-body {font-family:Arial; margin:0; text-align:center;}
-header {background:#4CAF50; color:white; padding:15px;}
-button {padding:10px; margin:5px; cursor:pointer;}
-.product {border:1px solid #ccc; padding:10px; margin:10px; display:inline-block;}
-#adminPanel {display:none; margin-top:20px;}
+body {font-family:Arial; margin:0; direction:rtl; background:#f5f5f5;}
+
+/* الهيدر */
+header{
+background:#4CAF50;
+color:white;
+padding:15px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+/* زر الثلاث خطوط */
+.menu-btn{
+font-size:26px;
+cursor:pointer;
+}
+
+/* القائمة الجانبية */
+.sidebar{
+position:fixed;
+top:0;
+right:-250px;
+width:250px;
+height:100%;
+background:white;
+box-shadow:-2px 0 5px rgba(0,0,0,0.2);
+padding:20px;
+transition:0.3s;
+}
+
+.sidebar div{
+padding:10px;
+border-bottom:1px solid #ddd;
+cursor:pointer;
+}
+
+/* المنتجات */
+.products{
+padding:20px;
+}
+
+.product{
+background:white;
+margin:10px;
+padding:10px;
+border-radius:10px;
+}
+
 </style>
 </head>
 
 <body>
 
 <header>
-<h1>Kiwi Kids</h1>
-<button onclick="showLogin()">🔐 دخول الأدمن</button>
+<h1>Kiwi Kids 🛍️</h1>
+<div class="menu-btn" onclick="toggleMenu()">☰</div>
 </header>
 
-<!-- المتجر -->
-<h2>المنتجات</h2>
-<div id="products"></div>
+<!-- القائمة -->
+<div class="sidebar" id="sidebar">
 
-<!-- تسجيل الدخول -->
-<div id="loginBox" style="display:none;">
-<h3>دخول الأدمن</h3>
-<input type="text" id="user" placeholder="اسم المستخدم"><br>
-<input type="password" id="pass" placeholder="كلمة المرور"><br>
-<button onclick="login()">دخول</button>
+<div onclick="showSection('home')">🏠 الرئيسي</div>
+<div onclick="showSection('dresses')">👗 فساتين</div>
+<div onclick="showSection('evening')">🌙 فساتين سهرة</div>
+
 </div>
 
-<!-- لوحة الأدمن -->
-<div id="adminPanel">
-<h2>لوحة التحكم</h2>
-<button onclick="addProduct()">➕ إضافة منتج</button>
+<!-- المحتوى -->
+<div class="products" id="content">
+
+<h2>أهلاً بك في المتجر 👋</h2>
+<p>اختر قسم من القائمة</p>
+
 </div>
 
 <script>
-// منتجات افتراضية
-var products = [
-  {name:"تيشيرت أطفال", price:"50"},
-  {name:"فستان بناتي", price:"80"}
-];
 
-// عرض المنتجات
-function renderProducts(){
-  var container = document.getElementById("products");
-  container.innerHTML = "";
-  
-  products.forEach(function(p){
-    var div = document.createElement("div");
-    div.className = "product";
-    div.innerHTML = "<h3>"+p.name+"</h3><p>"+p.price+" ريال</p>";
-    container.appendChild(div);
-  });
+// فتح وإغلاق القائمة
+function toggleMenu(){
+let s = document.getElementById("sidebar");
+if(s.style.right=="0px"){
+s.style.right="-250px";
+}else{
+s.style.right="0px";
+}
 }
 
-renderProducts();
+// عرض الأقسام
+function showSection(section){
 
-// إظهار تسجيل الدخول
-function showLogin(){
-  document.getElementById("loginBox").style.display="block";
+let c = document.getElementById("content");
+
+if(section==="home"){
+c.innerHTML = "<h2>🏠 الرئيسي</h2><p>كل المنتجات العامة</p>";
 }
 
-// تسجيل الدخول
-function login(){
-  var u = document.getElementById("user").value;
-  var p = document.getElementById("pass").value;
-
-  if(u === "admin" && p === "1234"){
-    document.getElementById("loginBox").style.display="none";
-    document.getElementById("adminPanel").style.display="block";
-    alert("تم الدخول كأدمن ✅");
-  } else {
-    alert("بيانات غلط ❌");
-  }
+if(section==="dresses"){
+c.innerHTML = `
+<h2>👗 فساتين</h2>
+<div class="product">فستان بناتي - 80 ريال</div>
+<div class="product">فستان أطفال - 60 ريال</div>
+`;
 }
 
-// إضافة منتج
-function addProduct(){
-  var name = prompt("اسم المنتج:");
-  var price = prompt("السعر:");
-
-  if(name && price){
-    products.push({name:name, price:price});
-    renderProducts();
-  }
+if(section==="evening"){
+c.innerHTML = `
+<h2>🌙 فساتين سهرة</h2>
+<div class="product">فستان سهرة فاخر - 150 ريال</div>
+<div class="product">فستان مناسبات - 120 ريال</div>
+`;
 }
+
+// إغلاق القائمة بعد الاختيار
+document.getElementById("sidebar").style.right="-250px";
+}
+
 </script>
 
 </body>
