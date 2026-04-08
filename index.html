@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kiwi Kids</title>
+<title>Kiwi Kids Pro</title>
 
 <style>
 body{
@@ -11,7 +11,6 @@ margin:0;
 font-family:Arial;
 direction:rtl;
 background:#f5f5f5;
-font-size:20px;
 }
 
 /* الهيدر */
@@ -24,52 +23,108 @@ justify-content:space-between;
 align-items:center;
 }
 
-h1{font-size:26px}
+h1{font-size:22px}
 
-/* زر القائمة */
-.menu-btn{
-font-size:45px;
+/* الشبكة */
+.grid{
+display:grid;
+grid-template-columns:repeat(3, 1fr);
+gap:10px;
+padding:10px;
+}
+
+/* كرت */
+.card{
+background:white;
+border-radius:12px;
+overflow:hidden;
+box-shadow:0 2px 6px rgba(0,0,0,0.1);
+text-align:center;
 cursor:pointer;
 }
 
-/* القائمة */
-.sidebar{
+.card img{
+width:100%;
+height:110px;
+object-fit:cover;
+}
+
+.card p{
+margin:5px;
+font-size:13px;
+}
+
+.price{
+color:green;
+font-weight:bold;
+margin-bottom:5px;
+}
+
+/* زر */
+button{
+background:#4CAF50;
+color:white;
+border:none;
+padding:6px;
+width:90%;
+margin-bottom:8px;
+border-radius:6px;
+cursor:pointer;
+}
+
+/* السلة */
+.cart{
 position:fixed;
+left:0;
 top:0;
-right:0;
-width:260px;
+width:300px;
 height:100%;
 background:white;
-box-shadow:-2px 0 10px rgba(0,0,0,0.3);
-padding:20px;
-transform:translateX(100%);
+box-shadow:2px 0 10px rgba(0,0,0,0.3);
+padding:15px;
+transform:translateX(-100%);
 transition:0.3s;
 z-index:999;
 }
 
-.sidebar.open{
+.cart.open{
 transform:translateX(0);
 }
 
-.sidebar div{
-padding:15px;
+.item{
 border-bottom:1px solid #ddd;
-font-size:22px;
-cursor:pointer;
+padding:5px;
+font-size:14px;
 }
 
-/* المحتوى */
-.content{
+.total{
+font-weight:bold;
+margin-top:10px;
+}
+
+.whatsapp{
+background:#25D366;
+margin-top:10px;
+}
+
+/* صفحة المنتج */
+.detail{
+display:none;
 padding:20px;
 }
 
-/* المنتج */
-.product{
-background:white;
-padding:15px;
-margin:10px;
+.detail img{
+width:100%;
 border-radius:10px;
-box-shadow:0 2px 5px rgba(0,0,0,0.1);
+}
+
+.back{
+background:#333;
+margin-top:10px;
+}
+
+@media(max-width:600px){
+.grid{grid-template-columns:repeat(2,1fr);}
 }
 
 </style>
@@ -79,58 +134,133 @@ box-shadow:0 2px 5px rgba(0,0,0,0.1);
 
 <header>
 <h1>Kiwi Kids 🛍️</h1>
-<div class="menu-btn" onclick="toggleMenu()">☰</div>
+<div onclick="toggleCart()">🛒</div>
 </header>
 
-<!-- القائمة -->
-<div class="sidebar" id="side">
-<div onclick="show('home')">🏠 الرئيسية</div>
-<div onclick="show('dresses')">👗 فساتين</div>
-<div onclick="show('evening')">🌙 سهرة</div>
+<!-- السلة -->
+<div class="cart" id="cart">
+<h3>السلة</h3>
+<div id="items"></div>
+<div class="total" id="total">الإجمالي: 0</div>
+<button class="whatsapp" onclick="order()">اطلب واتساب</button>
 </div>
 
-<!-- 🔥 بدون ترحيب - مباشرة منتجات -->
-<div class="content" id="content">
+<!-- المنتجات -->
+<div class="grid" id="grid"></div>
 
-<div class="product">👗 فستان أطفال - 60 ريال</div>
-<div class="product">👗 فستان بناتي - 80 ريال</div>
-<div class="product">🌙 فستان سهرة - 150 ريال</div>
+<!-- صفحة التفاصيل -->
+<div class="detail" id="detail">
+<img id="dimg">
+<h2 id="dname"></h2>
+<p id="dprice"></p>
 
+<button onclick="addDetail()">أضف للسلة</button>
+<button class="back" onclick="back()">رجوع</button>
 </div>
 
 <script>
 
-function toggleMenu(){
-document.getElementById("side").classList.toggle("open");
-}
+/* المنتجات */
+const products=[
+{ name:"فستان أطفال", price:60, img:"https://via.placeholder.com/300" },
+{ name:"فستان بناتي", price:80, img:"https://via.placeholder.com/300" },
+{ name:"فستان سهرة", price:150, img:"https://via.placeholder.com/300" },
+{ name:"طقم أطفال", price:90, img:"https://via.placeholder.com/300" },
+{ name:"عباية بناتي", price:70, img:"https://via.placeholder.com/300" },
+{ name:"فستان مناسبات", price:120, img:"https://via.placeholder.com/300" }
+];
 
-function show(type){
-let c=document.getElementById("content");
+let cart=JSON.parse(localStorage.getItem("cart"))||[];
+let total=0;
+let current=null;
 
-if(type=="home"){
-c.innerHTML=`
-<div class="product">👗 فستان أطفال - 60 ريال</div>
-<div class="product">👗 فستان بناتي - 80 ريال</div>
-<div class="product">🌙 فستان سهرة - 150 ريال</div>
+/* عرض المنتجات */
+function load(){
+let g=document.getElementById("grid");
+
+products.forEach((p,i)=>{
+g.innerHTML+=`
+<div class="card" onclick="openProduct(${i})">
+<img src="${p.img}">
+<p>${p.name}</p>
+<div class="price">${p.price} ريال</div>
+</div>
 `;
+});
+calc();
 }
 
-if(type=="dresses"){
-c.innerHTML=`
-<div class="product">👗 فستان أطفال - 60 ريال</div>
-<div class="product">👗 فستان بناتي - 80 ريال</div>
-`;
+/* فتح منتج */
+function openProduct(i){
+current=products[i];
+document.getElementById("grid").style.display="none";
+document.getElementById("detail").style.display="block";
+
+document.getElementById("dimg").src=current.img;
+document.getElementById("dname").innerText=current.name;
+document.getElementById("dprice").innerText=current.price+" ريال";
 }
 
-if(type=="evening"){
-c.innerHTML=`
-<div class="product">🌙 فستان سهرة - 150 ريال</div>
-`;
+/* رجوع */
+function back(){
+document.getElementById("grid").style.display="grid";
+document.getElementById("detail").style.display="none";
 }
 
-document.getElementById("side").classList.remove("open");
+/* إضافة للسلة */
+function add(name,price){
+cart.push({name,price});
+save();
 }
 
+/* من صفحة التفاصيل */
+function addDetail(){
+cart.push(current);
+save();
+}
+
+/* حفظ */
+function save(){
+localStorage.setItem("cart",JSON.stringify(cart));
+render();
+}
+
+/* عرض السلة */
+function render(){
+let box=document.getElementById("items");
+box.innerHTML="";
+total=0;
+
+cart.forEach(c=>{
+box.innerHTML+=`<div class="item">${c.name} - ${c.price}</div>`;
+total+=c.price;
+});
+
+document.getElementById("total").innerText="الإجمالي: "+total;
+}
+
+/* حساب أولي */
+function calc(){
+render();
+}
+
+/* السلة */
+function toggleCart(){
+document.getElementById("cart").classList.toggle("open");
+}
+
+/* واتساب */
+function order(){
+let msg="طلب جديد:%0A";
+cart.forEach(c=>{
+msg+=c.name+" - "+c.price+"%0A";
+});
+msg+="الإجمالي: "+total;
+
+window.open("https://wa.me/966500000000?text="+msg);
+}
+
+load();
 </script>
 
 </body>
