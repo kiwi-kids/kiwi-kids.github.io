@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kiwi Kids Ultra</title>
+<title>Kiwi Kids Ultimate Pro Max</title>
 
 <style>
 body{
@@ -13,39 +13,20 @@ background:#f4f6fb;
 text-align:center;
 }
 
-/* هيدر */
 header{
 background:linear-gradient(135deg,#ff6a88,#ff99ac);
 color:white;
 padding:15px;
+font-size:18px;
+font-weight:bold;
 }
 
-/* تسجيل دخول */
-#login{
-width:250px;
-margin:20px auto;
-background:white;
-padding:15px;
-border-radius:12px;
-box-shadow:0 0 10px #ddd;
-}
-
-input{
-width:90%;
+#search{
+width:85%;
 padding:10px;
-margin:5px 0;
-border-radius:8px;
-border:1px solid #ddd;
-}
-
-/* أدمن */
-#admin{
-display:none;
-background:white;
 margin:10px;
-padding:10px;
-border-radius:12px;
-box-shadow:0 0 10px #ddd;
+border-radius:10px;
+border:1px solid #ddd;
 }
 
 /* منتجات */
@@ -56,7 +37,7 @@ justify-content:center;
 }
 
 .card{
-width:180px;
+width:170px;
 background:white;
 margin:10px;
 padding:10px;
@@ -71,7 +52,7 @@ border-radius:10px;
 
 button{
 width:100%;
-padding:8px;
+padding:7px;
 margin-top:5px;
 border:none;
 border-radius:8px;
@@ -81,17 +62,29 @@ cursor:pointer;
 .add{background:#ff69b4;color:white}
 .del{background:red;color:white}
 
+/* أدمن */
+#admin{
+display:none;
+background:white;
+margin:10px;
+padding:10px;
+border-radius:12px;
+box-shadow:0 0 10px #ddd;
+}
+
 /* سلة */
 #cartBox{
 position:fixed;
 bottom:10px;
 left:10px;
-width:250px;
+width:260px;
 background:white;
 padding:10px;
 border-radius:12px;
 box-shadow:0 0 10px #ccc;
 font-size:13px;
+max-height:300px;
+overflow:auto;
 }
 
 /* واتساب */
@@ -105,24 +98,34 @@ padding:12px;
 border-radius:50px;
 text-decoration:none;
 }
+
+/* نافذة */
+#modal{
+display:none;
+position:fixed;
+top:0;left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.6);
+}
+
+#modalContent{
+background:white;
+width:300px;
+margin:120px auto;
+padding:15px;
+border-radius:15px;
+}
 </style>
 </head>
 
 <body>
 
-<header>
-<h2>Kiwi Kids Ultra 🥝</h2>
-</header>
+<header>🛍️ Kiwi Kids Ultimate Pro Max</header>
 
-<!-- تسجيل دخول -->
-<div id="login">
-<h3>دخول الأدمن</h3>
-<input id="user" placeholder="user">
-<input id="pass" type="password" placeholder="pass">
-<button onclick="login()" style="background:green;color:white;">دخول</button>
-</div>
+<input id="search" placeholder="ابحث عن منتج..." onkeyup="render()">
 
-<!-- لوحة الأدمن -->
+<!-- أدمن -->
 <div id="admin">
 <h3>إضافة منتج</h3>
 <input id="name" placeholder="اسم المنتج">
@@ -138,63 +141,88 @@ text-decoration:none;
 <div id="cartBox">
 <b>🛒 السلة</b>
 <div id="cart"></div>
-<p>الإجمالي: <span id="total">0</span></p>
+<p>الإجمالي: <span id="total">0</span> ريال</p>
 <button onclick="checkout()" style="background:orange;color:white;">إتمام الطلب</button>
 </div>
 
 <!-- واتساب -->
-<a class="whatsapp" onclick="checkout()">واتساب</a>
+<a class="whatsapp" onclick="checkout()">واتساب 📱</a>
+
+<!-- نافذة المنتج -->
+<div id="modal" onclick="closeModal()">
+<div id="modalContent" onclick="event.stopPropagation()">
+<h3 id="mName"></h3>
+<img id="mImg" style="width:100%;border-radius:10px;">
+<p id="mPrice"></p>
+<button onclick="addModal()" style="background:green;color:white;">إضافة للسلة</button>
+</div>
+</div>
 
 <script>
 
 let products = JSON.parse(localStorage.getItem("products")) || [
 {name:"فستان بناتي", price:180, img:"https://via.placeholder.com/300"},
-{name:"حذاء أطفال", price:90, img:"https://via.placeholder.com/300"}
+{name:"حذاء أطفال", price:90, img:"https://via.placeholder.com/300"},
+{name:"طقم أطفال", price:150, img:"https://via.placeholder.com/300"}
 ];
 
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
-/* تسجيل دخول */
-function login(){
-let u=document.getElementById("user").value;
-let p=document.getElementById("pass").value;
-
-if(u==="admin" && p==="1234"){
-document.getElementById("login").style.display="none";
-document.getElementById("admin").style.display="block";
-}else{
-alert("خطأ");
-}
-}
+let selected=null;
 
 /* عرض */
 function render(){
+let s=document.getElementById("search").value.toLowerCase();
 let html="";
+
 products.forEach((p,i)=>{
+if(p.name.toLowerCase().includes(s)){
 html+=`
 <div class="card">
-<img src="${p.img}">
+<img src="${p.img}" onclick="openModal(${i})">
 <h4>${p.name}</h4>
 <p>${p.price} ريال</p>
 <button class="add" onclick="addCart(${i})">إضافة</button>
 <button class="del" onclick="del(${i})">حذف</button>
 </div>`;
+}
 });
+
 document.getElementById("products").innerHTML=html;
 }
 
-/* إضافة منتج */
-function addProduct(){
-products.push({
-name:document.getElementById("name").value,
-price:Number(document.getElementById("price").value),
-img:document.getElementById("img").value
-});
-save();
-render();
+/* مودال */
+function openModal(i){
+selected=products[i];
+document.getElementById("mName").innerText=selected.name;
+document.getElementById("mPrice").innerText=selected.price+" ريال";
+document.getElementById("mImg").src=selected.img;
+document.getElementById("modal").style.display="block";
 }
 
-/* حذف */
+function closeModal(){
+document.getElementById("modal").style.display="none";
+}
+
+function addModal(){
+addCartByObj(selected);
+closeModal();
+}
+
+/* إضافة للسلة */
+function addCart(i){
+addCartByObj(products[i]);
+}
+
+function addCartByObj(item){
+let f=cart.find(c=>c.name===item.name);
+if(f) f.qty++;
+else cart.push({...item,qty:1});
+save();
+renderCart();
+}
+
+/* حذف منتج */
 function del(i){
 products.splice(i,1);
 save();
@@ -202,32 +230,36 @@ render();
 }
 
 /* سلة */
-function addCart(i){
-let item=products[i];
-
-let found=cart.find(c=>c.name===item.name);
-if(found){
-found.qty++;
-}else{
-cart.push({...item,qty:1});
-}
-
-save();
-renderCart();
-}
-
-/* عرض السلة */
 function renderCart(){
 let html="";
 let total=0;
 
-cart.forEach(c=>{
-html+=`${c.name} x${c.qty}<br>`;
+cart.forEach((c,i)=>{
+html+=`
+${c.name} x${c.qty} = ${c.price*c.qty}
+<button onclick="remove(${i})" style="background:red;color:white;">X</button><br>`;
 total+=c.price*c.qty;
 });
 
 document.getElementById("cart").innerHTML=html;
 document.getElementById("total").innerText=total;
+}
+
+function remove(i){
+cart.splice(i,1);
+save();
+renderCart();
+}
+
+/* إضافة منتج */
+function addProduct(){
+products.push({
+name:name.value,
+price:Number(price.value),
+img:img.value
+});
+save();
+render();
 }
 
 /* حفظ */
@@ -241,8 +273,13 @@ function checkout(){
 let phone="966537585439";
 let msg="طلب جديد:%0A";
 
+if(cart.length===0){
+alert("السلة فاضية");
+return;
+}
+
 cart.forEach(c=>{
-msg+=`${c.name} x${c.qty}%0A`;
+msg+=`${c.name} x${c.qty} = ${c.price*c.qty}%0A`;
 });
 
 window.open("https://wa.me/"+phone+"?text="+msg);
@@ -250,7 +287,6 @@ window.open("https://wa.me/"+phone+"?text="+msg);
 
 render();
 renderCart();
-
 </script>
 
 </body>
