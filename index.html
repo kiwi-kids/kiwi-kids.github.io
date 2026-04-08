@@ -3,13 +3,11 @@
 <head>
 <title>Kiwi Kids</title>
 <style>
-body {font-family:Arial; text-align:center; margin:0;}
+body {font-family:Arial; margin:0; text-align:center;}
 header {background:#4CAF50; color:white; padding:15px;}
-.login-box {margin-top:50px;}
-input {padding:10px; margin:5px;}
-button {padding:10px 20px; background:green; color:white; border:none; cursor:pointer;}
-#store {display:none; padding:20px;}
+button {padding:10px; margin:5px; cursor:pointer;}
 .product {border:1px solid #ccc; padding:10px; margin:10px; display:inline-block;}
+#adminPanel {display:none; margin-top:20px;}
 </style>
 </head>
 
@@ -17,45 +15,76 @@ button {padding:10px 20px; background:green; color:white; border:none; cursor:po
 
 <header>
 <h1>Kiwi Kids</h1>
+<button onclick="showLogin()">🔐 دخول الأدمن</button>
 </header>
 
+<!-- المتجر -->
+<h2>المنتجات</h2>
+<div id="products"></div>
+
 <!-- تسجيل الدخول -->
-<div class="login-box" id="loginBox">
-<h2>دخول الأدمن</h2>
+<div id="loginBox" style="display:none;">
+<h3>دخول الأدمن</h3>
 <input type="text" id="user" placeholder="اسم المستخدم"><br>
 <input type="password" id="pass" placeholder="كلمة المرور"><br>
 <button onclick="login()">دخول</button>
 </div>
 
-<!-- المتجر -->
-<div id="store">
-<h2>المتجر</h2>
+<!-- لوحة الأدمن -->
+<div id="adminPanel">
+<h2>لوحة التحكم</h2>
 <button onclick="addProduct()">➕ إضافة منتج</button>
-<div id="products"></div>
 </div>
 
 <script>
+// منتجات افتراضية
+var products = [
+  {name:"تيشيرت أطفال", price:"50"},
+  {name:"فستان بناتي", price:"80"}
+];
+
+// عرض المنتجات
+function renderProducts(){
+  var container = document.getElementById("products");
+  container.innerHTML = "";
+  
+  products.forEach(function(p){
+    var div = document.createElement("div");
+    div.className = "product";
+    div.innerHTML = "<h3>"+p.name+"</h3><p>"+p.price+" ريال</p>";
+    container.appendChild(div);
+  });
+}
+
+renderProducts();
+
+// إظهار تسجيل الدخول
+function showLogin(){
+  document.getElementById("loginBox").style.display="block";
+}
+
+// تسجيل الدخول
 function login(){
   var u = document.getElementById("user").value;
   var p = document.getElementById("pass").value;
 
   if(u === "admin" && p === "1234"){
     document.getElementById("loginBox").style.display="none";
-    document.getElementById("store").style.display="block";
+    document.getElementById("adminPanel").style.display="block";
+    alert("تم الدخول كأدمن ✅");
   } else {
     alert("بيانات غلط ❌");
   }
 }
 
+// إضافة منتج
 function addProduct(){
   var name = prompt("اسم المنتج:");
   var price = prompt("السعر:");
 
   if(name && price){
-    var div = document.createElement("div");
-    div.className = "product";
-    div.innerHTML = "<h3>"+name+"</h3><p>"+price+" ريال</p>";
-    document.getElementById("products").appendChild(div);
+    products.push({name:name, price:price});
+    renderProducts();
   }
 }
 </script>
