@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kiwi Kids Pro</title>
+<title>Kiwi Kids Pro Fix</title>
 
 <style>
 body{
@@ -23,8 +23,6 @@ justify-content:space-between;
 align-items:center;
 }
 
-h1{font-size:22px}
-
 /* الشبكة */
 .grid{
 display:grid;
@@ -40,7 +38,6 @@ border-radius:12px;
 overflow:hidden;
 box-shadow:0 2px 6px rgba(0,0,0,0.1);
 text-align:center;
-cursor:pointer;
 }
 
 .card img{
@@ -49,15 +46,10 @@ height:110px;
 object-fit:cover;
 }
 
-.card p{
-margin:5px;
-font-size:13px;
-}
-
 .price{
 color:green;
 font-weight:bold;
-margin-bottom:5px;
+margin:5px;
 }
 
 /* زر */
@@ -72,12 +64,12 @@ border-radius:6px;
 cursor:pointer;
 }
 
-/* السلة */
+/* 🔥 السلة (Fixed صح) */
 .cart{
 position:fixed;
 left:0;
 top:0;
-width:300px;
+width:280px;
 height:100%;
 background:white;
 box-shadow:2px 0 10px rgba(0,0,0,0.3);
@@ -85,6 +77,7 @@ padding:15px;
 transform:translateX(-100%);
 transition:0.3s;
 z-index:999;
+overflow:auto;
 }
 
 .cart.open{
@@ -105,26 +98,6 @@ margin-top:10px;
 .whatsapp{
 background:#25D366;
 margin-top:10px;
-}
-
-/* صفحة المنتج */
-.detail{
-display:none;
-padding:20px;
-}
-
-.detail img{
-width:100%;
-border-radius:10px;
-}
-
-.back{
-background:#333;
-margin-top:10px;
-}
-
-@media(max-width:600px){
-.grid{grid-template-columns:repeat(2,1fr);}
 }
 
 </style>
@@ -148,19 +121,9 @@ margin-top:10px;
 <!-- المنتجات -->
 <div class="grid" id="grid"></div>
 
-<!-- صفحة التفاصيل -->
-<div class="detail" id="detail">
-<img id="dimg">
-<h2 id="dname"></h2>
-<p id="dprice"></p>
-
-<button onclick="addDetail()">أضف للسلة</button>
-<button class="back" onclick="back()">رجوع</button>
-</div>
-
 <script>
 
-/* المنتجات */
+/* منتجات */
 const products=[
 { name:"فستان أطفال", price:60, img:"https://via.placeholder.com/300" },
 { name:"فستان بناتي", price:80, img:"https://via.placeholder.com/300" },
@@ -170,58 +133,29 @@ const products=[
 { name:"فستان مناسبات", price:120, img:"https://via.placeholder.com/300" }
 ];
 
-let cart=JSON.parse(localStorage.getItem("cart"))||[];
+let cart=[];
 let total=0;
-let current=null;
 
-/* عرض المنتجات */
+/* تحميل المنتجات */
 function load(){
 let g=document.getElementById("grid");
+g.innerHTML="";
 
-products.forEach((p,i)=>{
+products.forEach(p=>{
 g.innerHTML+=`
-<div class="card" onclick="openProduct(${i})">
+<div class="card">
 <img src="${p.img}">
 <p>${p.name}</p>
 <div class="price">${p.price} ريال</div>
+<button onclick="add('${p.name}',${p.price})">أضف للسلة</button>
 </div>
 `;
 });
-calc();
-}
-
-/* فتح منتج */
-function openProduct(i){
-current=products[i];
-document.getElementById("grid").style.display="none";
-document.getElementById("detail").style.display="block";
-
-document.getElementById("dimg").src=current.img;
-document.getElementById("dname").innerText=current.name;
-document.getElementById("dprice").innerText=current.price+" ريال";
-}
-
-/* رجوع */
-function back(){
-document.getElementById("grid").style.display="grid";
-document.getElementById("detail").style.display="none";
 }
 
 /* إضافة للسلة */
 function add(name,price){
 cart.push({name,price});
-save();
-}
-
-/* من صفحة التفاصيل */
-function addDetail(){
-cart.push(current);
-save();
-}
-
-/* حفظ */
-function save(){
-localStorage.setItem("cart",JSON.stringify(cart));
 render();
 }
 
@@ -232,28 +166,23 @@ box.innerHTML="";
 total=0;
 
 cart.forEach(c=>{
-box.innerHTML+=`<div class="item">${c.name} - ${c.price}</div>`;
+box.innerHTML+=`<div class="item">${c.name} - ${c.price} ريال</div>`;
 total+=c.price;
 });
 
 document.getElementById("total").innerText="الإجمالي: "+total;
 }
 
-/* حساب أولي */
-function calc(){
-render();
-}
-
-/* السلة */
+/* فتح/إغلاق السلة */
 function toggleCart(){
 document.getElementById("cart").classList.toggle("open");
 }
 
-/* واتساب */
+/* طلب واتساب */
 function order(){
 let msg="طلب جديد:%0A";
 cart.forEach(c=>{
-msg+=c.name+" - "+c.price+"%0A";
+msg+=c.name+" - "+c.price+" ريال%0A";
 });
 msg+="الإجمالي: "+total;
 
@@ -261,6 +190,7 @@ window.open("https://wa.me/966500000000?text="+msg);
 }
 
 load();
+
 </script>
 
 </body>
