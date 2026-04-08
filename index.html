@@ -23,40 +23,7 @@ body{
     width:180px;
 }
 
-/* البحث */
-input{
-    width:90%;
-    padding:10px;
-    border-radius:10px;
-    border:1px solid #ddd;
-    margin:10px 0;
-}
-
-/* المنتجات */
-.products{
-    display:flex;
-    flex-wrap:wrap;
-    justify-content:center;
-}
-
-.product{
-    width:180px;
-    margin:10px;
-    border:1px solid #eee;
-    border-radius:15px;
-    padding:10px;
-    box-shadow:0 0 10px #eee;
-}
-
-.product img{
-    width:100%;
-    border-radius:10px;
-}
-
-button{
-    width:100%;
-    margin-top:5px;
-    padding:8px;
+/* البحث 
     border:none;
     border-radius:8px;
     color:white;
@@ -104,82 +71,7 @@ button{
 
 <input type="text" id="search" onkeyup="filter()" placeholder="ابحث عن منتج...">
 
-<div class="products" id="products">
-
-<div class="product" data-name="فستان بناتي" data-price="180">
-<img src="dress1.jpg">
-<h3>فستان بناتي</h3>
-<p>180 ريال</p>
-<button class="add" onclick="addCart('فستان بناتي',180)">إضافة للسلة</button>
-<button class="buy" onclick="buy('فستان بناتي')">اطلب الآن</button>
-</div>
-
-<div class="product" data-name="فستان فراشة" data-price="120">
-<img src="dress2.jpg">
-<h3>فستان فراشة</h3>
-<p>120 ريال</p>
-<button class="add" onclick="addCart('فستان فراشة',120)">إضافة للسلة</button>
-<button class="buy" onclick="buy('فستان فراشة')">اطلب الآن</button>
-</div>
-
-</div>
-
-<!-- السلة -->
-<div id="cartBox">
-<b>🛒 السلة</b>
-<div id="cartItems"></div>
-<p>الإجمالي: <span id="total">0</span> ريال</p>
-<button onclick="checkout()" style="background:orange;">إتمام الطلب</button>
-</div>
-
-<!-- واتساب -->
-<a class="whatsapp" href="#" onclick="checkout()">واتساب 📱</a>
-
-<script>
-let cart = [];
-
-function addCart(name, price){
-    cart.push({name,price});
-    renderCart();
-}
-
-function renderCart(){
-    let html = "";
-    let total = 0;
-
-    cart.forEach((item,i)=>{
-        html += `
-        ${item.name} - ${item.price} ريال 
-        <button onclick="removeItem(${i})" style="background:red;padding:3px 5px;">X</button><br>
-        `;
-        total += item.price;
-    });
-
-    document.getElementById("cartItems").innerHTML = html;
-    document.getElementById("total").innerText = total;
-}
-
-function removeItem(index){
-    cart.splice(index,1);
-    renderCart();
-}
-
-function checkout(){
-    let phone = "966537585439";
-    let msg = "طلب جديد:%0A";
-
-    cart.forEach(item=>{
-        msg += item.name + " - " + item.price + " ريال%0A";
-    });
-
-    window.open("https://wa.me/"+phone+"?text="+msg);
-}
-
-function buy(name){
-    window.open("https://wa.me/966537585439?text=أريد شراء: "+name);
-}
-
-function filter(){
+<div class="products" 
     let input = document.getElementById("search").value.toLowerCase();
     let items = document.getElementsByClassName("product");
 
