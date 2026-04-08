@@ -1,301 +1,49 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kiwi Kids Ultimate</title>
-
+<title>Kiwi Kids</title>
 <style>
-body{
-margin:0;
-font-family:Arial;
-background:#f5f6fa;
-direction:rtl;
-}
-
-header{
-background:#111;
-color:white;
-padding:15px;
-text-align:center;
-}
-
-/* تسجيل دخول */
-#login{
-background:white;
-padding:15px;
-margin:15px;
-border-radius:10px;
-text-align:center;
-}
-
-input{
-padding:10px;
-margin:5px;
-width:80%;
-border-radius:8px;
-border:1px solid #ddd;
-}
-
-/* أدمن */
-#admin{
-display:none;
-background:white;
-margin:10px;
-padding:10px;
-border-radius:10px;
-}
-
-/* منتجات */
-.products{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
-gap:10px;
-padding:10px;
-}
-
-.card{
-background:white;
-border-radius:15px;
-box-shadow:0 0 10px #ddd;
-overflow:hidden;
-}
-
-.card img{
-width:100%;
-height:140px;
-object-fit:cover;
-}
-
-.add{
-width:100%;
-padding:8px;
-background:#111;
-color:white;
-border:none;
-}
-
-/* زر السلة */
-#cartBtn{
-position:fixed;
-bottom:20px;
-right:20px;
-background:#111;
-color:white;
-padding:12px;
-border-radius:50px;
-z-index:999;
-}
-
-#count{
-background:red;
-color:white;
-border-radius:50%;
-padding:3px 7px;
-font-size:12px;
-}
-
-/* السلة */
-#cartBox{
-position:fixed;
-top:0;
-right:-350px;
-width:300px;
-height:100%;
-background:white;
-box-shadow:-5px 0 20px rgba(0,0,0,0.2);
-transition:0.3s;
-padding:10px;
-overflow:auto;
-z-index:1000;
-}
-
-#overlay{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:rgba(0,0,0,0.5);
-display:none;
-}
-
-.del{
-background:red;
-color:white;
-border:none;
-}
+body {font-family:Arial; text-align:center;}
+.login-box {margin-top:50px;}
+input {padding:10px; margin:5px;}
+button {padding:10px 20px; background:green; color:white; border:none;}
+#adminPage {display:none;}
 </style>
 </head>
 
 <body>
 
-<header>🛍️ Kiwi Kids</header>
+<h1>Kiwi Kids</h1>
 
-<!-- تسجيل دخول -->
-<div id="login">
-<h3>🔐 دخول الأدمن</h3>
-<input id="user" placeholder="user">
-<input id="pass" type="password" placeholder="pass">
+<div class="login-box">
+<h2>دخول الأدمن</h2>
+<input type="text" id="user" placeholder="اسم المستخدم"><br>
+<input type="password" id="pass" placeholder="كلمة المرور"><br>
 <button onclick="login()">دخول</button>
 </div>
 
-<!-- لوحة التحكم -->
-<div id="admin">
-<h3>➕ إضافة منتج</h3>
-<input id="name" placeholder="اسم المنتج">
-<input id="price" placeholder="السعر">
-
-<!-- 🔥 زر رفع صورة -->
-<input type="file" id="fileInput" accept="image/*">
-
-<button onclick="addProduct()">إضافة</button>
-</div>
-
-<!-- المنتجات -->
-<div class="products" id="products"></div>
-
-<!-- زر السلة -->
-<div id="cartBtn" onclick="openCart()">
-🛒 <span id="count">0</span>
-</div>
-
-<div id="overlay" onclick="closeCart()"></div>
-
-<!-- السلة -->
-<div id="cartBox">
-<h3>🛒 السلة</h3>
-<div id="cart"></div>
-<p>الإجمالي: <span id="total">0</span> ريال</p>
-<button onclick="checkout()" style="background:green;color:white;width:100%;padding:10px;">
-إتمام الطلب
-</button>
+<div id="adminPage">
+<h2>لوحة التحكم</h2>
+<p>تم تسجيل الدخول بنجاح ✅</p>
+<button onclick="addProduct()">إضافة منتج</button>
 </div>
 
 <script>
-
-let products = JSON.parse(localStorage.getItem("products")) || [];
-let cart = JSON.parse(localStorage.getItem("cart")) || [];
-
-/* تسجيل دخول */
 function login(){
-let u=document.getElementById("user").value;
-let p=document.getElementById("pass").value;
+  var u = document.getElementById("user").value;
+  var p = document.getElementById("pass").value;
 
-if(u==="admin" && p==="1234"){
-login.style.display="none";
-admin.style.display="block";
-}else{
-alert("خطأ");
-}
-}
-
-/* عرض */
-function render(){
-let html="";
-products.forEach((p,i)=>{
-html+=`
-<div class="card">
-<img src="${p.img}">
-<h4>${p.name}</h4>
-<p>${p.price} ريال</p>
-<button class="add" onclick="add(${i})">أضف</button>
-</div>`;
-});
-products.innerHTML=html;
+  if(u === "admin" && p === "1234"){
+    document.querySelector(".login-box").style.display="none";
+    document.getElementById("adminPage").style.display="block";
+  } else {
+    alert("بيانات غلط ❌");
+  }
 }
 
-/* إضافة منتج */
 function addProduct(){
-let file=document.getElementById("fileInput").files[0];
-
-if(!file){
-alert("اختر صورة");
-return;
+  alert("هنا تضيف منتجات 👍");
 }
-
-let reader=new FileReader();
-reader.onload=function(e){
-
-products.push({
-name:name.value,
-price:Number(price.value),
-img:e.target.result
-});
-
-save();
-render();
-};
-
-reader.readAsDataURL(file);
-}
-
-/* سلة */
-function add(i){
-let p=products[i];
-let f=cart.find(c=>c.name===p.name);
-
-if(f) f.qty++;
-else cart.push({...p,qty:1});
-
-save();
-renderCart();
-}
-
-function renderCart(){
-let html="";
-let total=0;
-let count=0;
-
-cart.forEach((c,i)=>{
-html+=`${c.name} x${c.qty}
-<button class="del" onclick="del(${i})">X</button><br>`;
-total+=c.price*c.qty;
-count+=c.qty;
-});
-
-document.getElementById("cart").innerHTML=html;
-document.getElementById("total").innerText=total;
-document.getElementById("count").innerText=count;
-}
-
-function del(i){
-cart.splice(i,1);
-save();
-renderCart();
-}
-
-function save(){
-localStorage.setItem("products",JSON.stringify(products));
-localStorage.setItem("cart",JSON.stringify(cart));
-}
-
-/* سلة */
-function openCart(){
-cartBox.style.right="0";
-overlay.style.display="block";
-}
-
-function closeCart(){
-cartBox.style.right="-350px";
-overlay.style.display="none";
-}
-
-/* واتساب */
-function checkout(){
-let phone="966500000000";
-let msg="طلب جديد:%0A";
-
-cart.forEach(c=>{
-msg+=`${c.name} x${c.qty}%0A`;
-});
-
-window.open("https://wa.me/"+phone+"?text="+msg);
-}
-
-render();
-renderCart();
-
 </script>
 
 </body>
