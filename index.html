@@ -10,10 +10,9 @@ margin:0;
 font-family:Arial;
 direction:rtl;
 background:#f5f5f5;
-font-size:18px; /* 🔥 تكبير الخط الأساسي */
+font-size:20px;
 }
 
-/* الهيدر */
 header{
 background:#4CAF50;
 color:white;
@@ -23,30 +22,23 @@ justify-content:space-between;
 align-items:center;
 }
 
-/* اسم المتجر */
-header h1{
-font-size:26px; /* 🔥 تكبير العنوان */
-}
+h1{font-size:26px}
 
-/* زر القائمة (☰) */
 .menu-btn{
-font-size:34px; /* 🔥 تكبير الثلاث خطوط */
+font-size:40px;
 cursor:pointer;
-padding:5px 10px;
 }
 
-/* القائمة الجانبية */
 .sidebar{
 position:fixed;
 top:0;
-right:-280px;
-width:280px;
+right:-300px;
+width:300px;
 height:100%;
 background:white;
-box-shadow:-2px 0 10px rgba(0,0,0,0.2);
 padding:20px;
 transition:0.3s;
-font-size:20px; /* 🔥 تكبير النص داخل القائمة */
+font-size:22px;
 }
 
 .sidebar div{
@@ -55,65 +47,53 @@ border-bottom:1px solid #ddd;
 cursor:pointer;
 }
 
-/* المحتوى */
 .content{
 padding:20px;
-font-size:18px;
 }
 
-/* المنتجات */
 .product{
 background:white;
 padding:15px;
 margin:10px;
-border-radius:12px;
-font-size:18px;
-box-shadow:0 2px 5px rgba(0,0,0,0.1);
-}
-
-.product h3{
+border-radius:10px;
 font-size:20px;
 }
-
 </style>
-
 </head>
 
 <body>
 
 <header>
 <h1>Kiwi Kids 🛍️</h1>
-<div class="menu-btn" onclick="toggleMenu()">☰</div>
+<div class="menu-btn" onclick="toggle()">☰</div>
 </header>
 
-<!-- القائمة -->
-<div class="sidebar" id="sidebar">
+<div class="sidebar" id="side">
 <div onclick="show('home')">🏠 الرئيسي</div>
 <div onclick="show('dresses')">👗 فساتين</div>
 <div onclick="show('evening')">🌙 فساتين سهرة</div>
 </div>
 
-<!-- المحتوى -->
 <div class="content" id="content">
 <h2>أهلاً 👋</h2>
-<p>اضغط ☰ واختر قسم</p>
+<p>اضغط ☰</p>
 </div>
 
 <script>
 
-function toggleMenu(){
-let s=document.getElementById("sidebar");
-s.style.right = (s.style.right=="0px") ? "-280px" : "0px";
+function toggle(){
+let s=document.getElementById("side");
+s.style.right = (s.style.right=="0px") ? "-300px" : "0px";
 }
 
-function show(section){
+function show(type){
 let c=document.getElementById("content");
 
-if(section==="home"){
-c.innerHTML="<h2>🏠 الرئيسي</h2><p>كل المنتجات تظهر هنا</p>";
+if(type=="home"){
+c.innerHTML="<h2>🏠 الرئيسي</h2><p>كل المنتجات هنا</p>";
 }
 
-if(section==="dresses"){
+if(type=="dresses"){
 c.innerHTML=`
 <h2>👗 فساتين</h2>
 <div class="product">فستان أطفال - 60 ريال</div>
@@ -121,15 +101,14 @@ c.innerHTML=`
 `;
 }
 
-if(section==="evening"){
+if(type=="evening"){
 c.innerHTML=`
 <h2>🌙 فساتين سهرة</h2>
-<div class="product">فستان سهرة فاخر - 150 ريال</div>
-<div class="product">فستان مناسبات - 120 ريال</div>
+<div class="product">فستان سهرة - 150 ريال</div>
 `;
 }
 
-document.getElementById("sidebar").style.right="-280px";
+document.getElementById("side").style.right="-300px";
 }
 
 </script>
