@@ -13,7 +13,6 @@ direction:rtl;
 background:#f4f4f4;
 }
 
-/* هيدر */
 header{
 background:#ffcc00;
 padding:12px;
@@ -26,36 +25,12 @@ top:0;
 z-index:10;
 }
 
-.cart-btn{
-position:relative;
-cursor:pointer;
-}
+.cart-btn{position:relative;cursor:pointer;}
+.badge{position:absolute;top:-8px;left:-8px;background:red;color:white;font-size:12px;padding:2px 6px;border-radius:50%;}
 
-.badge{
-position:absolute;
-top:-8px;
-left:-8px;
-background:red;
-color:white;
-font-size:12px;
-padding:2px 6px;
-border-radius:50%;
-}
+.search{padding:10px;background:white;}
+.search input{width:100%;padding:10px;border-radius:8px;border:1px solid #ddd;}
 
-/* بحث */
-.search{
-padding:10px;
-background:white;
-}
-
-.search input{
-width:100%;
-padding:10px;
-border-radius:8px;
-border:1px solid #ddd;
-}
-
-/* منتجات */
 .grid{
 display:grid;
 grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
@@ -71,16 +46,9 @@ box-shadow:0 2px 8px rgba(0,0,0,0.1);
 text-align:center;
 }
 
-.card img{
-width:100%;
-height:130px;
-object-fit:cover;
-}
+.card img{width:100%;height:130px;object-fit:cover;}
 
-.price{
-color:green;
-font-weight:bold;
-}
+.price{color:green;font-weight:bold;}
 
 button{
 background:#ffcc00;
@@ -109,9 +77,7 @@ overflow:auto;
 padding:10px;
 }
 
-.cart.open{
-transform:translateX(0);
-}
+.cart.open{transform:translateX(0);}
 
 /* خلفية */
 #overlay{
@@ -125,39 +91,35 @@ display:none;
 z-index:998;
 }
 
-/* تسجيل */
-.login{
-position:fixed;
-width:100%;
-height:100%;
-background:#000000cc;
-display:flex;
-align-items:center;
-justify-content:center;
-z-index:1000;
-}
-
-.box{
-background:white;
-padding:20px;
-border-radius:10px;
-text-align:center;
-}
-
-input{
-width:90%;
-padding:8px;
-margin:5px;
-}
-
-/* سلة عناصر */
 .cart-item{
 display:flex;
 justify-content:space-between;
-padding:5px;
+align-items:center;
+padding:6px;
 border-bottom:1px solid #eee;
 font-size:14px;
+gap:5px;
 }
+
+.small-btn{
+background:#ff4444;
+color:white;
+border:none;
+padding:3px 6px;
+border-radius:5px;
+cursor:pointer;
+font-size:12px;
+}
+.view-btn{
+background:#2196F3;
+color:white;
+border:none;
+padding:3px 6px;
+border-radius:5px;
+cursor:pointer;
+font-size:12px;
+}
+
 </style>
 </head>
 
@@ -165,37 +127,15 @@ font-size:14px;
 
 <header>
 <div>🛍️ NOON PRO MAX</div>
-
 <div class="cart-btn" onclick="toggleCart()">
-🛒
-<span class="badge" id="count">0</span>
+🛒 <span class="badge" id="count">0</span>
 </div>
 </header>
 
-<!-- بحث -->
 <div class="search">
 <input onkeyup="search(this.value)" placeholder="ابحث عن منتج...">
 </div>
 
-<!-- تسجيل -->
-<div class="login" id="login">
-<div class="box">
-<h3>دخول الأدمن</h3>
-<input type="password" id="pass">
-<button onclick="login()">دخول</button>
-</div>
-</div>
-
-<!-- أدمن -->
-<div id="admin" style="display:none;padding:10px;">
-<h3>إضافة منتج</h3>
-<input id="name" placeholder="اسم المنتج">
-<input id="price" placeholder="السعر">
-<input id="img" placeholder="رابط الصورة">
-<button onclick="addProduct()">إضافة</button>
-</div>
-
-<!-- السلة -->
 <div class="cart" id="cart">
 
 <div style="display:flex;justify-content:space-between;align-items:center;">
@@ -204,14 +144,13 @@ font-size:14px;
 </div>
 
 <div id="items"></div>
+
 <h3 id="total">الإجمالي: 0</h3>
 <button onclick="order()">اطلب واتساب</button>
 </div>
 
-<!-- الخلفية -->
 <div id="overlay" onclick="toggleCart()"></div>
 
-<!-- منتجات -->
 <div class="grid" id="grid"></div>
 
 <script>
@@ -225,17 +164,6 @@ let products = JSON.parse(localStorage.getItem("products")) || [
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
 let showProducts = [...products];
 
-/* دخول */
-function login(){
-let p=document.getElementById("pass").value;
-if(p==="1234"){
-document.getElementById("login").style.display="none";
-document.getElementById("admin").style.display="block";
-load();
-}else alert("كلمة السر خطأ");
-}
-
-/* عرض */
 function load(){
 let g=document.getElementById("grid");
 g.innerHTML="";
@@ -255,13 +183,11 @@ renderCart();
 updateCount();
 }
 
-/* بحث */
 function search(v){
 showProducts = products.filter(p=>p.name.includes(v));
 load();
 }
 
-/* إضافة للسلة */
 function add(i){
 cart.push(showProducts[i]);
 localStorage.setItem("cart",JSON.stringify(cart));
@@ -269,17 +195,28 @@ renderCart();
 updateCount();
 }
 
-/* عرض السلة */
+function removeItem(i){
+cart.splice(i,1);
+localStorage.setItem("cart",JSON.stringify(cart));
+renderCart();
+updateCount();
+}
+
 function renderCart(){
 let box=document.getElementById("items");
 box.innerHTML="";
 let total=0;
 
-cart.forEach(c=>{
+cart.forEach((c,i)=>{
 box.innerHTML+=`
 <div class="cart-item">
-<span>${c.name}</span>
-<span>${c.price} ر.س</span>
+<div>
+<div>${c.name}</div>
+<div>${c.price} ر.س</div>
+</div>
+
+<button class="view-btn" onclick="viewProduct(${i})">عرض</button>
+<button class="small-btn" onclick="removeItem(${i})">حذف</button>
 </div>
 `;
 total+=c.price;
@@ -288,39 +225,24 @@ total+=c.price;
 document.getElementById("total").innerText="الإجمالي: "+total+" ر.س";
 }
 
-/* عدد السلة */
 function updateCount(){
 document.getElementById("count").innerText=cart.length;
 }
 
-/* فتح/إغلاق السلة */
 function toggleCart(){
-let cartBox = document.getElementById("cart");
-let overlay = document.getElementById("overlay");
+let cartBox=document.getElementById("cart");
+let overlay=document.getElementById("overlay");
 
 cartBox.classList.toggle("open");
 
-if(cartBox.classList.contains("open")){
-overlay.style.display="block";
-}else{
-overlay.style.display="none";
-}
+overlay.style.display = cartBox.classList.contains("open") ? "block" : "none";
 }
 
-/* إضافة منتج */
-function addProduct(){
-let n=document.getElementById("name").value;
-let p=document.getElementById("price").value;
-let i=document.getElementById("img").value;
-
-products.push({name:n,price:Number(p),img:i});
-localStorage.setItem("products",JSON.stringify(products));
-
-showProducts=[...products];
-load();
+function viewProduct(i){
+let p = cart[i];
+alert("📦 المنتج:\n\n" + p.name + "\n" + p.price + " ريال");
 }
 
-/* طلب */
 function order(){
 let msg="طلب جديد:%0A";
 let total=0;
