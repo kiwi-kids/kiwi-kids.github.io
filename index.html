@@ -79,7 +79,6 @@ padding:10px;
 
 .cart.open{transform:translateX(0);}
 
-/* خلفية */
 #overlay{
 position:fixed;
 top:0;
@@ -91,6 +90,7 @@ display:none;
 z-index:998;
 }
 
+/* عنصر السلة */
 .cart-item{
 display:flex;
 justify-content:space-between;
@@ -98,23 +98,27 @@ align-items:center;
 padding:6px;
 border-bottom:1px solid #eee;
 font-size:14px;
+}
+
+.qty-box{
+display:flex;
+align-items:center;
 gap:5px;
+}
+
+.qty-box button{
+width:25px;
+height:25px;
+border-radius:5px;
+font-weight:bold;
+padding:0;
 }
 
 .small-btn{
 background:#ff4444;
 color:white;
 border:none;
-padding:3px 6px;
-border-radius:5px;
-cursor:pointer;
-font-size:12px;
-}
-.view-btn{
-background:#2196F3;
-color:white;
-border:none;
-padding:3px 6px;
+padding:4px 6px;
 border-radius:5px;
 cursor:pointer;
 font-size:12px;
@@ -164,6 +168,7 @@ let products = JSON.parse(localStorage.getItem("products")) || [
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
 let showProducts = [...products];
 
+/* عرض المنتجات */
 function load(){
 let g=document.getElementById("grid");
 g.innerHTML="";
@@ -183,25 +188,58 @@ renderCart();
 updateCount();
 }
 
+/* بحث */
 function search(v){
 showProducts = products.filter(p=>p.name.includes(v));
 load();
 }
 
+/* إضافة للسلة */
 function add(i){
-cart.push(showProducts[i]);
-localStorage.setItem("cart",JSON.stringify(cart));
-renderCart();
-updateCount();
+let item = showProducts[i];
+
+let found = cart.find(c=>c.name===item.name);
+
+if(found){
+found.qty++;
+}else{
+cart.push({...item,qty:1});
 }
 
+save();
+}
+
+/* زيادة */
+function plus(i){
+cart[i].qty++;
+save();
+}
+
+/* نقص */
+function minus(i){
+cart[i].qty--;
+
+if(cart[i].qty<=0){
+cart.splice(i,1);
+}
+
+save();
+}
+
+/* حذف */
 function removeItem(i){
 cart.splice(i,1);
+save();
+}
+
+/* حفظ */
+function save(){
 localStorage.setItem("cart",JSON.stringify(cart));
 renderCart();
 updateCount();
 }
 
+/* عرض السلة */
 function renderCart(){
 let box=document.getElementById("items");
 box.innerHTML="";
@@ -212,44 +250,48 @@ box.innerHTML+=`
 <div class="cart-item">
 <div>
 <div>${c.name}</div>
-<div>${c.price} ر.س</div>
+<div>${c.price} ر.س × ${c.qty}</div>
 </div>
 
-<button class="view-btn" onclick="viewProduct(${i})">عرض</button>
+<div class="qty-box">
+<button onclick="minus(${i})">-</button>
+<span>${c.qty}</span>
+<button onclick="plus(${i})">+</button>
+</div>
+
 <button class="small-btn" onclick="removeItem(${i})">حذف</button>
 </div>
 `;
-total+=c.price;
+
+total += c.price * c.qty;
 });
 
 document.getElementById("total").innerText="الإجمالي: "+total+" ر.س";
 }
 
+/* عدد السلة */
 function updateCount(){
-document.getElementById("count").innerText=cart.length;
+let count = cart.reduce((a,b)=>a+b.qty,0);
+document.getElementById("count").innerText=count;
 }
 
+/* سلة */
 function toggleCart(){
 let cartBox=document.getElementById("cart");
 let overlay=document.getElementById("overlay");
 
 cartBox.classList.toggle("open");
-
 overlay.style.display = cartBox.classList.contains("open") ? "block" : "none";
 }
 
-function viewProduct(i){
-let p = cart[i];
-alert("📦 المنتج:\n\n" + p.name + "\n" + p.price + " ريال");
-}
-
+/* طلب */
 function order(){
 let msg="طلب جديد:%0A";
 let total=0;
 
 cart.forEach(c=>{
-msg+=c.name+" - "+c.price+"%0A";
-total+=c.price;
+msg+=c.name+" × "+c.qty+" - "+(c.price*c.qty)+"%0A";
+total+=c.price*c.qty;
 });
 
 msg+="%0Aالإجمالي: "+total;
