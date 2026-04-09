@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NOON PRO MAX</title>
+<title>Kiwi Kids</title>
 
 <style>
 body{
@@ -15,353 +15,146 @@ background:#f4f4f4;
 
 header{
 background:#ffcc00;
-padding:12px;
-display:flex;
-justify-content:space-between;
-align-items:center;
+padding:15px;
+text-align:center;
+font-size:22px;
 font-weight:bold;
-position:sticky;
-top:0;
-z-index:10;
 }
 
-.cart-btn{position:relative;cursor:pointer;}
-.badge{position:absolute;top:-8px;left:-8px;background:red;color:white;font-size:12px;padding:2px 6px;border-radius:50%;}
-
-.search{padding:10px;background:white;}
-.search input{width:100%;padding:10px;border-radius:8px;border:1px solid #ddd;}
-
-.grid{
+.products{
 display:grid;
-grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+grid-template-columns:repeat(2,1fr);
 gap:10px;
 padding:10px;
 }
 
-.card{
+.product{
 background:white;
-border-radius:12px;
-overflow:hidden;
-box-shadow:0 2px 8px rgba(0,0,0,0.1);
+border-radius:10px;
+padding:10px;
 text-align:center;
 }
 
-.card img{
+.product img{
 width:100%;
-height:130px;
-object-fit:cover;
-}
-
-.price{color:green;font-weight:bold;}
-
-button{
-background:#ffcc00;
-border:none;
-padding:8px;
-width:90%;
-margin:5px;
-border-radius:8px;
-cursor:pointer;
-font-weight:bold;
-}
-
-/* أدمن */
-.admin{
-padding:10px;
-background:white;
-margin:10px;
 border-radius:10px;
 }
 
-.admin input{
-width:95%;
-padding:8px;
-margin:5px 0;
-}
-
-/* سلة */
-.cart{
-position:fixed;
-left:0;
-top:0;
-width:320px;
-height:100%;
-background:white;
-box-shadow:2px 0 10px rgba(0,0,0,0.3);
-transform:translateX(-100%);
-transition:0.3s;
-z-index:999;
-overflow:auto;
-padding:10px;
-}
-
-.cart.open{transform:translateX(0);}
-
-#overlay{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:rgba(0,0,0,0.4);
-display:none;
-z-index:998;
-}
-
-.cart-item{
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding:8px;
-border-bottom:1px solid #eee;
-font-size:14px;
-}
-
-.qty-box{
-display:flex;
-align-items:center;
-gap:5px;
-}
-
-.qty-box button{
-width:25px;
-height:25px;
-border-radius:5px;
-padding:0;
-}
-
-.small-btn{
-background:#ff4444;
+button{
+background:#ff6600;
 color:white;
 border:none;
-padding:4px 6px;
+padding:10px;
+margin-top:5px;
 border-radius:5px;
-cursor:pointer;
+width:100%;
+}
+
+.cart{
+position:fixed;
+bottom:0;
+width:100%;
+background:black;
+color:white;
+padding:10px;
+text-align:center;
+}
+
+.admin{
+position:fixed;
+top:10px;
+left:10px;
+background:black;
+color:white;
+padding:8px;
+border-radius:5px;
 font-size:12px;
+cursor:pointer;
 }
 </style>
 </head>
 
 <body>
 
-<header>
-<div>🛍️ NOON PRO MAX</div>
-<div class="cart-btn" onclick="toggleCart()">
-🛒 <span class="badge" id="count">0</span>
-</div>
-</header>
+<header>🥝 Kiwi Kids</header>
 
-<div class="search">
-<input onkeyup="search(this.value)" placeholder="ابحث عن منتج...">
-</div>
+<div class="admin" onclick="login()">🔒 دخول الأدمن</div>
 
-<!-- أدمن -->
-<div class="admin">
-<h3>إضافة منتج</h3>
+<div class="products" id="products"></div>
 
-<input id="name" placeholder="اسم المنتج">
-<input id="price" placeholder="السعر">
-
-<!-- 🔥 رفع صورة من الجوال -->
-<input type="file" id="imgFile" accept="image/*">
-
-<button onclick="addProduct()">إضافة</button>
-</div>
-
-<!-- سلة -->
 <div class="cart" id="cart">
-
-<div style="display:flex;justify-content:space-between;align-items:center;">
-<h3>السلة 🛒</h3>
-<button onclick="toggleCart()" style="width:40px;height:40px;border-radius:50%;">✖</button>
+السلة: 0 منتج
 </div>
-
-<div id="items"></div>
-
-<h3 id="total">الإجمالي: 0</h3>
-<button onclick="order()">اطلب واتساب</button>
-</div>
-
-<div id="overlay" onclick="toggleCart()"></div>
-
-<!-- المنتجات -->
-<div class="grid" id="grid"></div>
 
 <script>
 
-let products = JSON.parse(localStorage.getItem("products")) || [];
-let cart = JSON.parse(localStorage.getItem("cart")) || [];
-let showProducts = [...products];
+// ✅ تحميل المنتجات من التخزين
+let products = JSON.parse(localStorage.getItem("products")) || [
+{ name:"تيشيرت أطفال", price:50, img:"https://via.placeholder.com/200" },
+{ name:"بنطلون أطفال", price:70, img:"https://via.placeholder.com/200" }
+];
 
-/* تحويل الصورة إلى Base64 */
-function toBase64(file){
-return new Promise((resolve,reject)=>{
-let reader = new FileReader();
-reader.readAsDataURL(file);
-reader.onload = ()=>resolve(reader.result);
-reader.onerror = error=>reject(error);
-});
-}
+let cartCount = 0;
+let isAdmin = false;
 
-/* إضافة منتج */
-async function addProduct(){
-
-let n=document.getElementById("name").value;
-let p=document.getElementById("price").value;
-let file=document.getElementById("imgFile").files[0];
-
-if(!n || !p || !file){
-alert("أدخل كل البيانات");
-return;
-}
-
-let imgBase64 = await toBase64(file);
-
-products.push({
-name:n,
-price:Number(p),
-img:imgBase64
-});
-
-localStorage.setItem("products",JSON.stringify(products));
-
-showProducts=[...products];
-load();
-
-document.getElementById("name").value="";
-document.getElementById("price").value="";
-document.getElementById("imgFile").value="";
-}
-
-/* عرض المنتجات */
-function load(){
-let g=document.getElementById("grid");
-g.innerHTML="";
-
-showProducts.forEach((p,i)=>{
-g.innerHTML+=`
-<div class="card">
+// عرض المنتجات
+function render(){
+let html = "";
+products.forEach((p,i)=>{
+html += `
+<div class="product">
 <img src="${p.img}">
-<h4>${p.name}</h4>
-<div class="price">${p.price} ريال</div>
-<button onclick="add(${i})">أضف للسلة</button>
+<h3>${p.name}</h3>
+<p>${p.price} ريال</p>
+<button onclick="add()">أضف للسلة</button>
+${isAdmin ? `<button onclick="deleteProduct(${i})">🗑 حذف</button>` : ``}
 </div>
 `;
 });
-
-renderCart();
-updateCount();
+document.getElementById("products").innerHTML = html;
 }
 
-/* بحث */
-function search(v){
-showProducts = products.filter(p=>p.name.includes(v));
-load();
+// إضافة للسلة
+function add(){
+cartCount++;
+document.getElementById("cart").innerText = "السلة: " + cartCount + " منتج";
 }
 
-/* إضافة للسلة */
-function add(i){
-let item = showProducts[i];
-
-let found = cart.find(c=>c.name===item.name);
-
-if(found){
-found.qty++;
+// دخول الأدمن
+function login(){
+let pass = prompt("ادخل رمز الأدمن");
+if(pass === "1234"){
+isAdmin = true;
+alert("تم الدخول كأدمن");
+addProduct();
+render();
 }else{
-cart.push({...item,qty:1});
+alert("رمز خطأ");
+}
 }
 
-save();
+// إضافة منتج (أدمن فقط)
+function addProduct(){
+let name = prompt("اسم المنتج");
+let price = prompt("السعر");
+let img = prompt("رابط الصورة");
+
+if(name && price && img){
+products.push({name, price, img});
+localStorage.setItem("products", JSON.stringify(products));
+render();
+}
 }
 
-/* زيادة */
-function plus(i){
-cart[i].qty++;
-save();
+// حذف منتج
+function deleteProduct(i){
+products.splice(i,1);
+localStorage.setItem("products", JSON.stringify(products));
+render();
 }
 
-/* نقص */
-function minus(i){
-cart[i].qty--;
-if(cart[i].qty<=0) cart.splice(i,1);
-save();
-}
-
-/* حذف */
-function removeItem(i){
-cart.splice(i,1);
-save();
-}
-
-/* حفظ */
-function save(){
-localStorage.setItem("cart",JSON.stringify(cart));
-renderCart();
-updateCount();
-}
-
-/* السلة */
-function renderCart(){
-let box=document.getElementById("items");
-box.innerHTML="";
-let total=0;
-
-cart.forEach((c,i)=>{
-box.innerHTML+=`
-<div class="cart-item">
-
-<div>
-<div>${c.name}</div>
-<div>${c.price} × ${c.qty}</div>
-</div>
-
-<div class="qty-box">
-<button onclick="minus(${i})">-</button>
-<span>${c.qty}</span>
-<button onclick="plus(${i})">+</button>
-</div>
-
-<button class="small-btn" onclick="removeItem(${i})">حذف</button>
-
-</div>
-`;
-total += c.price * c.qty;
-});
-
-document.getElementById("total").innerText="الإجمالي: "+total+" ر.س";
-}
-
-/* عداد */
-function updateCount(){
-let count = cart.reduce((a,b)=>a+b.qty,0);
-document.getElementById("count").innerText=count;
-}
-
-/* فتح السلة */
-function toggleCart(){
-let cartBox=document.getElementById("cart");
-let overlay=document.getElementById("overlay");
-
-cartBox.classList.toggle("open");
-overlay.style.display = cartBox.classList.contains("open") ? "block" : "none";
-}
-
-/* طلب واتساب */
-function order(){
-let msg="طلب جديد:%0A";
-let total=0;
-
-cart.forEach(c=>{
-msg+=c.name+" × "+c.qty+" - "+(c.price*c.qty)+"%0A";
-total+=c.price*c.qty;
-});
-
-msg+="%0Aالإجمالي: "+total;
-
-window.open("https://wa.me/966500000000?text="+msg);
-}
-
-load();
+// تشغيل
+render();
 
 </script>
 
