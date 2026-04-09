@@ -10,19 +10,36 @@ body{
 margin:0;
 font-family:Arial;
 direction:rtl;
-background:#f6f6f6;
+background:#f4f4f4;
 }
 
-/* الهيدر */
+/* هيدر */
 header{
 background:#ffcc00;
-padding:15px;
+padding:12px;
 display:flex;
 justify-content:space-between;
 align-items:center;
 font-weight:bold;
 position:sticky;
 top:0;
+z-index:10;
+}
+
+.cart-btn{
+position:relative;
+cursor:pointer;
+}
+
+.badge{
+position:absolute;
+top:-8px;
+left:-8px;
+background:red;
+color:white;
+font-size:12px;
+padding:2px 6px;
+border-radius:50%;
 }
 
 /* بحث */
@@ -41,7 +58,7 @@ border:1px solid #ddd;
 /* منتجات */
 .grid{
 display:grid;
-grid-template-columns:repeat(2,1fr);
+grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
 gap:10px;
 padding:10px;
 }
@@ -56,7 +73,7 @@ text-align:center;
 
 .card img{
 width:100%;
-height:120px;
+height:130px;
 object-fit:cover;
 }
 
@@ -65,7 +82,6 @@ color:green;
 font-weight:bold;
 }
 
-/* زر */
 button{
 background:#ffcc00;
 border:none;
@@ -74,6 +90,7 @@ width:90%;
 margin:5px;
 border-radius:8px;
 cursor:pointer;
+font-weight:bold;
 }
 
 /* سلة */
@@ -81,7 +98,7 @@ cursor:pointer;
 position:fixed;
 left:0;
 top:0;
-width:300px;
+width:320px;
 height:100%;
 background:white;
 box-shadow:2px 0 10px rgba(0,0,0,0.3);
@@ -94,6 +111,18 @@ padding:10px;
 
 .cart.open{
 transform:translateX(0);
+}
+
+/* خلفية */
+#overlay{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.4);
+display:none;
+z-index:998;
 }
 
 /* تسجيل */
@@ -120,6 +149,15 @@ width:90%;
 padding:8px;
 margin:5px;
 }
+
+/* سلة عناصر */
+.cart-item{
+display:flex;
+justify-content:space-between;
+padding:5px;
+border-bottom:1px solid #eee;
+font-size:14px;
+}
 </style>
 </head>
 
@@ -127,7 +165,11 @@ margin:5px;
 
 <header>
 <div>🛍️ NOON PRO MAX</div>
-<div onclick="toggleCart()">🛒</div>
+
+<div class="cart-btn" onclick="toggleCart()">
+🛒
+<span class="badge" id="count">0</span>
+</div>
 </header>
 
 <!-- بحث -->
@@ -155,11 +197,19 @@ margin:5px;
 
 <!-- السلة -->
 <div class="cart" id="cart">
+
+<div style="display:flex;justify-content:space-between;align-items:center;">
 <h3>السلة 🛒</h3>
+<button onclick="toggleCart()" style="width:40px;height:40px;border-radius:50%;">✖</button>
+</div>
+
 <div id="items"></div>
-<h3 id="total">0</h3>
+<h3 id="total">الإجمالي: 0</h3>
 <button onclick="order()">اطلب واتساب</button>
 </div>
+
+<!-- الخلفية -->
+<div id="overlay" onclick="toggleCart()"></div>
 
 <!-- منتجات -->
 <div class="grid" id="grid"></div>
@@ -182,7 +232,7 @@ if(p==="1234"){
 document.getElementById("login").style.display="none";
 document.getElementById("admin").style.display="block";
 load();
-}else alert("كلمة سر خطأ");
+}else alert("كلمة السر خطأ");
 }
 
 /* عرض */
@@ -202,6 +252,7 @@ g.innerHTML+=`
 });
 
 renderCart();
+updateCount();
 }
 
 /* بحث */
@@ -215,6 +266,7 @@ function add(i){
 cart.push(showProducts[i]);
 localStorage.setItem("cart",JSON.stringify(cart));
 renderCart();
+updateCount();
 }
 
 /* عرض السلة */
@@ -224,16 +276,35 @@ box.innerHTML="";
 let total=0;
 
 cart.forEach(c=>{
-box.innerHTML+=`<div>${c.name} - ${c.price}</div>`;
+box.innerHTML+=`
+<div class="cart-item">
+<span>${c.name}</span>
+<span>${c.price} ر.س</span>
+</div>
+`;
 total+=c.price;
 });
 
-document.getElementById("total").innerText="الإجمالي: "+total;
+document.getElementById("total").innerText="الإجمالي: "+total+" ر.س";
 }
 
-/* سلة */
+/* عدد السلة */
+function updateCount(){
+document.getElementById("count").innerText=cart.length;
+}
+
+/* فتح/إغلاق السلة */
 function toggleCart(){
-document.getElementById("cart").classList.toggle("open");
+let cartBox = document.getElementById("cart");
+let overlay = document.getElementById("overlay");
+
+cartBox.classList.toggle("open");
+
+if(cartBox.classList.contains("open")){
+overlay.style.display="block";
+}else{
+overlay.style.display="none";
+}
 }
 
 /* إضافة منتج */
