@@ -25,36 +25,12 @@ top:0;
 z-index:10;
 }
 
-.cart-btn{
-position:relative;
-cursor:pointer;
-}
+.cart-btn{position:relative;cursor:pointer;}
+.badge{position:absolute;top:-8px;left:-8px;background:red;color:white;font-size:12px;padding:2px 6px;border-radius:50%;}
 
-.badge{
-position:absolute;
-top:-8px;
-left:-8px;
-background:red;
-color:white;
-font-size:12px;
-padding:2px 6px;
-border-radius:50%;
-}
+.search{padding:10px;background:white;}
+.search input{width:100%;padding:10px;border-radius:8px;border:1px solid #ddd;}
 
-/* بحث */
-.search{
-padding:10px;
-background:white;
-}
-
-.search input{
-width:100%;
-padding:10px;
-border-radius:8px;
-border:1px solid #ddd;
-}
-
-/* منتجات */
 .grid{
 display:grid;
 grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
@@ -73,15 +49,10 @@ text-align:center;
 .card img{
 width:100%;
 height:130px;
-object-fit:contain;
-background:white;
-padding:5px;
+object-fit:cover;
 }
 
-.price{
-color:green;
-font-weight:bold;
-}
+.price{color:green;font-weight:bold;}
 
 button{
 background:#ffcc00;
@@ -92,6 +63,20 @@ margin:5px;
 border-radius:8px;
 cursor:pointer;
 font-weight:bold;
+}
+
+/* أدمن */
+.admin{
+padding:10px;
+background:white;
+margin:10px;
+border-radius:10px;
+}
+
+.admin input{
+width:95%;
+padding:8px;
+margin:5px 0;
 }
 
 /* سلة */
@@ -110,9 +95,7 @@ overflow:auto;
 padding:10px;
 }
 
-.cart.open{
-transform:translateX(0);
-}
+.cart.open{transform:translateX(0);}
 
 #overlay{
 position:fixed;
@@ -125,7 +108,6 @@ display:none;
 z-index:998;
 }
 
-/* عنصر السلة */
 .cart-item{
 display:flex;
 justify-content:space-between;
@@ -133,11 +115,6 @@ align-items:center;
 padding:8px;
 border-bottom:1px solid #eee;
 font-size:14px;
-gap:10px;
-}
-
-.cart-item div:first-child{
-flex:1;
 }
 
 .qty-box{
@@ -162,7 +139,6 @@ border-radius:5px;
 cursor:pointer;
 font-size:12px;
 }
-
 </style>
 </head>
 
@@ -170,7 +146,6 @@ font-size:12px;
 
 <header>
 <div>🛍️ NOON PRO MAX</div>
-
 <div class="cart-btn" onclick="toggleCart()">
 🛒 <span class="badge" id="count">0</span>
 </div>
@@ -178,6 +153,19 @@ font-size:12px;
 
 <div class="search">
 <input onkeyup="search(this.value)" placeholder="ابحث عن منتج...">
+</div>
+
+<!-- أدمن -->
+<div class="admin">
+<h3>إضافة منتج</h3>
+
+<input id="name" placeholder="اسم المنتج">
+<input id="price" placeholder="السعر">
+
+<!-- 🔥 رفع صورة من الجوال -->
+<input type="file" id="imgFile" accept="image/*">
+
+<button onclick="addProduct()">إضافة</button>
 </div>
 
 <!-- سلة -->
@@ -201,14 +189,49 @@ font-size:12px;
 
 <script>
 
-let products = JSON.parse(localStorage.getItem("products")) || [
-{name:"فستان أطفال",price:60,img:"https://via.placeholder.com/300"},
-{name:"حذاء رياضي",price:120,img:"https://via.placeholder.com/300"},
-{name:"ساعة يد",price:90,img:"https://via.placeholder.com/300"}
-];
-
+let products = JSON.parse(localStorage.getItem("products")) || [];
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
 let showProducts = [...products];
+
+/* تحويل الصورة إلى Base64 */
+function toBase64(file){
+return new Promise((resolve,reject)=>{
+let reader = new FileReader();
+reader.readAsDataURL(file);
+reader.onload = ()=>resolve(reader.result);
+reader.onerror = error=>reject(error);
+});
+}
+
+/* إضافة منتج */
+async function addProduct(){
+
+let n=document.getElementById("name").value;
+let p=document.getElementById("price").value;
+let file=document.getElementById("imgFile").files[0];
+
+if(!n || !p || !file){
+alert("أدخل كل البيانات");
+return;
+}
+
+let imgBase64 = await toBase64(file);
+
+products.push({
+name:n,
+price:Number(p),
+img:imgBase64
+});
+
+localStorage.setItem("products",JSON.stringify(products));
+
+showProducts=[...products];
+load();
+
+document.getElementById("name").value="";
+document.getElementById("price").value="";
+document.getElementById("imgFile").value="";
+}
 
 /* عرض المنتجات */
 function load(){
@@ -260,11 +283,7 @@ save();
 /* نقص */
 function minus(i){
 cart[i].qty--;
-
-if(cart[i].qty<=0){
-cart.splice(i,1);
-}
-
+if(cart[i].qty<=0) cart.splice(i,1);
 save();
 }
 
@@ -281,7 +300,7 @@ renderCart();
 updateCount();
 }
 
-/* عرض السلة */
+/* السلة */
 function renderCart(){
 let box=document.getElementById("items");
 box.innerHTML="";
@@ -293,7 +312,7 @@ box.innerHTML+=`
 
 <div>
 <div>${c.name}</div>
-<div>${c.price} ر.س × ${c.qty}</div>
+<div>${c.price} × ${c.qty}</div>
 </div>
 
 <div class="qty-box">
@@ -312,13 +331,13 @@ total += c.price * c.qty;
 document.getElementById("total").innerText="الإجمالي: "+total+" ر.س";
 }
 
-/* عدد السلة */
+/* عداد */
 function updateCount(){
 let count = cart.reduce((a,b)=>a+b.qty,0);
 document.getElementById("count").innerText=count;
 }
 
-/* فتح/إغلاق السلة */
+/* فتح السلة */
 function toggleCart(){
 let cartBox=document.getElementById("cart");
 let overlay=document.getElementById("overlay");
