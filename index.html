@@ -1,51 +1,31 @@
-<!DOCTYPE html>
-<html lang="ar">
-<head>
-  <meta charset="UTF-8">
-  <title>متجر Kiwi Kids</title>
-</head>
-
-<body style="font-family:Arial; text-align:center;">
-
-<h1>🛍️ منتجات المتجر</h1>
-
-<div id="products"></div>
-
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase.js"></script>
-
 <script>
-var firebaseConfig = {
-  databaseURL: "https://kiwi-kids-34de7-default-rtdb.europe-west1.firebasedatabase.app/"
-};
+const productsDiv = document.getElementById("products");
 
-firebase.initializeApp(firebaseConfig);
+db.ref("products").on("value", (snapshot) => {
+  productsDiv.innerHTML = "";
 
-var db = firebase.database().ref("products");
+  snapshot.forEach((child) => {
+    const data = child.val();
 
-db.on("value", function(snapshot) {
-  var data = snapshot.val();
-  var output = "";
+    // 🔥 حل ذكي: يدور على أول قيمة اسم وسعر
+    let name = "بدون اسم";
+    let price = 0;
 
-  if (!data) {
-    document.getElementById("products").innerHTML = "لا يوجد منتجات";
-    return;
-  }
+    if (typeof data === "string") {
+      name = data;
+    }
 
-  for (var key in data) {
-    var name = data[key].name || "بدون اسم";
-    var price = data[key].price || "0";
+    if (typeof data === "object") {
+      name = data.name || data.title || data.product || "بدون اسم";
+      price = data.price || data.cost || 0;
+    }
 
-    output += `
-      <div style="border:1px solid #000; margin:10px; padding:10px;">
+    productsDiv.innerHTML += `
+      <div class="product">
         <h3>${name}</h3>
-        <p>السعر: ${price} ريال</p>
+        <p class="price">${price} ريال</p>
       </div>
     `;
-  }
-
-  document.getElementById("products").innerHTML = output;
+  });
 });
 </script>
-
-</body>
-</html>
