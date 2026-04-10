@@ -1,161 +1,40 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kiwi Kids</title>
-
-<style>
-body{
-margin:0;
-font-family:Arial;
-direction:rtl;
-background:#f4f4f4;
-}
-
-header{
-background:#ffcc00;
-padding:15px;
-text-align:center;
-font-size:22px;
-font-weight:bold;
-}
-
-.products{
-display:grid;
-grid-template-columns:repeat(2,1fr);
-gap:10px;
-padding:10px;
-}
-
-.product{
-background:white;
-border-radius:10px;
-padding:10px;
-text-align:center;
-}
-
-.product img{
-width:100%;
-border-radius:10px;
-}
-
-button{
-background:#ff6600;
-color:white;
-border:none;
-padding:10px;
-margin-top:5px;
-border-radius:5px;
-width:100%;
-}
-
-.cart{
-position:fixed;
-bottom:0;
-width:100%;
-background:black;
-color:white;
-padding:10px;
-text-align:center;
-}
-
-.admin{
-position:fixed;
-top:10px;
-left:10px;
-background:black;
-color:white;
-padding:8px;
-border-radius:5px;
-font-size:12px;
-cursor:pointer;
-}
-</style>
+  <title>متجري</title>
 </head>
 
 <body>
 
-<header>🥝 Kiwi Kids</header>
+<h2>المنتجات</h2>
+<div id="products"></div>
 
-<div class="admin" onclick="login()">🔒 دخول الأدمن</div>
-
-<div class="products" id="products"></div>
-
-<div class="cart" id="cart">
-السلة: 0 منتج
-</div>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase.js"></script>
 
 <script>
+var firebaseConfig = {
+  databaseURL: "https://kiwi-kids-34de7-default-rtdb.europe-west1.firebasedatabase.app/"
+};
 
-// ✅ تحميل المنتجات من التخزين
-let products = JSON.parse(localStorage.getItem("products")) || [
-{ name:"تيشيرت أطفال", price:50, img:"https://via.placeholder.com/200" },
-{ name:"بنطلون أطفال", price:70, img:"https://via.placeholder.com/200" }
-];
+firebase.initializeApp(firebaseConfig);
 
-let cartCount = 0;
-let isAdmin = false;
+var db = firebase.database().ref("products");
 
-// عرض المنتجات
-function render(){
-let html = "";
-products.forEach((p,i)=>{
-html += `
-<div class="product">
-<img src="${p.img}">
-<h3>${p.name}</h3>
-<p>${p.price} ريال</p>
-<button onclick="add()">أضف للسلة</button>
-${isAdmin ? `<button onclick="deleteProduct(${i})">🗑 حذف</button>` : ``}
-</div>
-`;
+db.on("value", function(snapshot) {
+  var data = snapshot.val();
+  var output = "";
+
+  for (var key in data) {
+    output += `
+      <div style="border:1px solid #000; margin:10px; padding:10px;">
+        <h3>${data[key].name}</h3>
+        <p>السعر: ${data[key].price} ريال</p>
+      </div>
+    `;
+  }
+
+  document.getElementById("products").innerHTML = output;
 });
-document.getElementById("products").innerHTML = html;
-}
-
-// إضافة للسلة
-function add(){
-cartCount++;
-document.getElementById("cart").innerText = "السلة: " + cartCount + " منتج";
-}
-
-// دخول الأدمن
-function login(){
-let pass = prompt("ادخل رمز الأدمن");
-if(pass === "1234"){
-isAdmin = true;
-alert("تم الدخول كأدمن");
-addProduct();
-render();
-}else{
-alert("رمز خطأ");
-}
-}
-
-// إضافة منتج (أدمن فقط)
-function addProduct(){
-let name = prompt("اسم المنتج");
-let price = prompt("السعر");
-let img = prompt("رابط الصورة");
-
-if(name && price && img){
-products.push({name, price, img});
-localStorage.setItem("products", JSON.stringify(products));
-render();
-}
-}
-
-// حذف منتج
-function deleteProduct(i){
-products.splice(i,1);
-localStorage.setItem("products", JSON.stringify(products));
-render();
-}
-
-// تشغيل
-render();
-
 </script>
 
 </body>
