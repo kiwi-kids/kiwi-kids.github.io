@@ -1,310 +1,91 @@
 <!DOCTYPE html>
+<html>
+<head>
+<title>Kiwi Kids</title>
+</head>
+
+<body style="text-align:center; font-family:Arial;">
+<h1>  Kiwi</h1>
+<p>أهلاً بكم في متجر ملابس الأطفال</p>
+</body>
+</html>
+<!DOCTYPE html>
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>متجر احترافي نهائي v4</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kiwi Kids</title>
 
 <style>
-body{
-  font-family: Arial;
-  background:#f4f4f4;
-  text-align:center;
+body {
+    font-family: Arial;
+    margin: 0;
+    background: #fff;
 }
 
-.header{
-  background:#111;
-  color:white;
-  padding:12px;
+header {
+    background: #ffb6c1;
+    padding: 15px;
+    text-align: center;
+    font-size: 24px;
+    color: white;
 }
 
-.product{
-  background:white;
-  margin:10px;
-  padding:10px;
-  border-radius:12px;
-  width:260px;
-  display:inline-block;
-  box-shadow:0 0 10px #ddd;
-  position:relative;
+.products {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 20px;
 }
 
-.product img{
-  width:100%;
-  height:180px;
-  object-fit:cover;
-  border-radius:10px;
+.product {
+    border: 1px solid #eee;
+    border-radius: 10px;
+    margin: 10px;
+    width: 200px;
+    text-align: center;
+    padding: 10px;
 }
 
-.price{
-  color:green;
-  font-weight:bold;
+.product img {
+    width: 100%;
+    border-radius: 10px;
 }
 
-button{
-  padding:6px 10px;
-  margin:5px;
-  border:none;
-  border-radius:6px;
-  cursor:pointer;
-}
-
-.cart{
-  position:fixed;
-  top:10px;
-  right:10px;
-  background:white;
-  padding:10px;
-  border-radius:10px;
-  box-shadow:0 0 10px #ccc;
-  width:240px;
-}
-
-input{
-  padding:8px;
-  margin:5px;
-  width:200px;
-}
-
-.panel{
-  background:white;
-  margin:10px;
-  padding:10px;
-  border-radius:10px;
-  display:none;
-}
-
-.search{
-  padding:8px;
-  width:260px;
-  margin:10px;
-}
-
-.deleteBtn{
-  background:red;
-  color:white;
-  font-size:12px;
-  position:absolute;
-  top:5px;
-  left:5px;
-}
-
-.badge{
-  background:#111;
-  color:white;
-  padding:3px 6px;
-  border-radius:6px;
-  font-size:12px;
+button {
+    background: #ff69b4;
+    border: none;
+    color: white;
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 5px;
+    cursor: pointer;
 }
 </style>
+
 </head>
 
 <body>
 
-<div class="header">
-  <h2>🛍️ متجر احترافي نهائي v4</h2>
-  <button onclick="loginAdmin()">🔐 دخول الأدمن</button>
-  <span id="status" class="badge">زائر</span>
+<header>Kiwi Kids 👗</header>
+
+<div class="products">
+
+<div class="product">
+<img src="dress1.jpg">
+<h3>فستان بناتي</h3>
+<p>180 ريال</p>
+<button onclick="order()">اطلب الآن</button>
 </div>
 
-<!-- 🔍 بحث -->
-<input class="search" placeholder="ابحث عن منتج..." onkeyup="search(this.value)">
-
-<!-- 🟢 أدمن -->
-<div class="panel" id="adminPanel">
-  <h3>➕ إضافة منتج</h3>
-  <input id="name" placeholder="اسم المنتج">
-  <input id="price" placeholder="السعر">
-  <input type="file" id="imageFile">
-  <br>
-  <button onclick="addProduct()">رفع المنتج</button>
+<div class="product">
+<img src="dress2.jpg">
+<h3>فستان بناتي فراشه </h3>
+<p>120 ريال</p>
+<button onclick="order()">اطلب الآن</button>
 </div>
 
-<!-- 📦 الطلبات -->
-<div class="panel" id="ordersPanel">
-  <h3>📦 الطلبات</h3>
-  <div id="orders"></div>
 </div>
-
-<div id="products">جاري التحميل...</div>
-
-<!-- 🛒 السلة -->
-<div class="cart">
-<h3>🛒 السلة</h3>
-<div id="cart"></div>
-<button onclick="checkout()">إتمام الطلب 💰</button>
-</div>
-
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
 
 <script>
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  databaseURL: "YOUR_DATABASE_URL",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT.appspot.com"
-};
-
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-const storage = firebase.storage();
-
-let cart = [];
-let allProducts = [];
-let isAdmin = false;
-
-const productsDiv = document.getElementById("products");
-const cartDiv = document.getElementById("cart");
-const adminPanel = document.getElementById("adminPanel");
-const ordersPanel = document.getElementById("ordersPanel");
-const ordersDiv = document.getElementById("orders");
-const status = document.getElementById("status");
-
-// 🔐 دخول الأدمن
-function loginAdmin(){
-  const pass = prompt("أدخل كلمة المرور");
-  if(pass === "1234"){
-    isAdmin = true;
-    adminPanel.style.display = "inline-block";
-    ordersPanel.style.display = "inline-block";
-    status.innerText = "أدمن";
-    loadOrders();
-    loadProducts();
-  } else {
-    alert("كلمة المرور خطأ");
-  }
-}
-
-// 🔥 عرض المنتجات
-function loadProducts(){
-  db.ref("products").on("value", (snap) => {
-    productsDiv.innerHTML = "";
-    allProducts = [];
-
-    if(!snap.exists()){
-      productsDiv.innerHTML = "لا توجد منتجات";
-      return;
-    }
-
-    snap.forEach((p) => {
-      const d = p.val();
-      d.id = p.key;
-      allProducts.push(d);
-      renderProduct(d);
-    });
-  });
-}
-
-function renderProduct(d){
-  const safeName = d.name || "بدون اسم";
-  const safePrice = d.price || 0;
-  const safeImg = d.image || "";
-
-  productsDiv.innerHTML += `
-    <div class="product">
-      ${isAdmin ? `<button class='deleteBtn' onclick="deleteProduct('${d.id}')">X</button>` : ""}
-      <img src="${safeImg}">
-      <h3>${safeName}</h3>
-      <p class="price">${safePrice} ريال</p>
-      <button onclick="addCart('${safeName}',${safePrice})">➕ إضافة</button>
-    </div>
-  `;
-}
-
-// ➕ إضافة منتج
-function addProduct(){
-  const name = document.getElementById("name").value;
-  const price = document.getElementById("price").value;
-  const file = document.getElementById("imageFile").files[0];
-
-  if(!name || !price || !file){
-    alert("أكمل البيانات");
-    return;
-  }
-
-  const ref = storage.ref("products/" + file.name);
-  const uploadTask = ref.put(file);
-
-  uploadTask.on("state_changed", null, null, () => {
-    uploadTask.snapshot.ref.getDownloadURL().then(url => {
-      const id = "prod_" + Date.now();
-      db.ref("products/" + id).set({name, price, image:url});
-      alert("تم إضافة المنتج");
-    });
-  });
-}
-
-// 🗑️ حذف منتج
-function deleteProduct(id){
-  if(confirm("حذف المنتج؟")){
-    db.ref("products/" + id).remove();
-  }
-}
-
-// 🔎 بحث
-function search(val){
-  productsDiv.innerHTML = "";
-  allProducts.forEach(p => {
-    if((p.name || "").includes(val)) renderProduct(p);
-  });
-}
-
-// 🛒 سلة
-function addCart(name, price){
-  cart.push({name, price:Number(price), qty:1});
-  renderCart();
-}
-
-function renderCart(){
-  cartDiv.innerHTML = "";
-  let total = 0;
-
-  cart.forEach((c,i) => {
-    total += c.price * c.qty;
-
-    cartDiv.innerHTML += `
-      <div>
-        ${c.name} (${c.qty})
-        <button onclick="changeQty(${i},1)">+</button>
-        <button onclick="changeQty(${i},-1)">-</button>
-      </div>
-    `;
-  });
-
-  cartDiv.innerHTML += `<hr>💰 الإجمالي: ${total} ريال`;
-}
-
-function changeQty(i,v){
-  cart[i].qty += v;
-  if(cart[i].qty <= 0) cart.splice(i,1);
-  renderCart();
-}
-
-// 💰 طلب
-function checkout(){
-  if(cart.length === 0){ alert("السلة فاضية"); return; }
-
-  db.ref("orders").push({items:cart,time:Date.now()});
-  cart = [];
-  renderCart();
-  alert("تم إرسال الطلب 🚀");
-}
-
-// 📦 طلبات
-function loadOrders(){
-  db.ref("orders").on("value", snap => {
-    ordersDiv.innerHTML = "";
-    snap.forEach(o => {
-      const d = o.val();
-      ordersDiv.innerHTML += `<div class='product'>${JSON.stringify(d)}</div>`;
-    });
-  });
-}
-
-loadProducts();
-</script>
-
-</body>
-</html>
+function
