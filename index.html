@@ -1,12 +1,14 @@
 <!DOCTYPE html>
-<html>
+<html lang="ar">
 <head>
-  <title>متجري</title>
+  <meta charset="UTF-8">
+  <title>متجر Kiwi Kids</title>
 </head>
 
-<body>
+<body style="font-family:Arial; text-align:center;">
 
-<h2>المنتجات</h2>
+<h1>🛍️ منتجات المتجر</h1>
+
 <div id="products"></div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase.js"></script>
@@ -24,11 +26,19 @@ db.on("value", function(snapshot) {
   var data = snapshot.val();
   var output = "";
 
+  if (!data) {
+    document.getElementById("products").innerHTML = "لا يوجد منتجات";
+    return;
+  }
+
   for (var key in data) {
+    var name = data[key].name || "بدون اسم";
+    var price = data[key].price || "0";
+
     output += `
       <div style="border:1px solid #000; margin:10px; padding:10px;">
-        <h3>${data[key].name}</h3>
-        <p>السعر: ${data[key].price} ريال</p>
+        <h3>${name}</h3>
+        <p>السعر: ${price} ريال</p>
       </div>
     `;
   }
