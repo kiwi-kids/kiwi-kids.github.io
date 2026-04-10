@@ -2,33 +2,72 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>المتجر</title>
+<title>متجر احترافي</title>
 
 <style>
-body { font-family: Arial; text-align:center; background:#f5f5f5; }
-.product {
-  background:white;
+body{
+  font-family: Arial;
+  background:#f5f5f5;
+  text-align:center;
+}
+
+.product{
+  background:#fff;
   margin:10px;
   padding:10px;
-  border-radius:10px;
+  border-radius:12px;
   width:250px;
   display:inline-block;
-  box-shadow:0 0 5px #ccc;
+  box-shadow:0 0 8px #ddd;
 }
-.price { color:green; font-weight:bold; }
+
+.product img{
+  width:100%;
+  height:180px;
+  object-fit:cover;
+  border-radius:10px;
+}
+
+.price{
+  color:green;
+  font-weight:bold;
+}
+
+button{
+  padding:5px 10px;
+  margin:5px;
+  border:none;
+  border-radius:5px;
+  cursor:pointer;
+}
+
+.cart{
+  position:fixed;
+  top:10px;
+  right:10px;
+  background:white;
+  padding:10px;
+  border-radius:10px;
+  box-shadow:0 0 10px #ccc;
+}
 </style>
 </head>
 
 <body>
 
-<h2>🛍️ المتجر</h2>
+<h2>🛍️ المتجر الاحترافي</h2>
 <div id="products">جاري التحميل...</div>
+
+<div class="cart">
+<h3>🛒 السلة</h3>
+<div id="cart"></div>
+</div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
 <script>
-// 🔴 حط بياناتك هنا
+// 🔴 Firebase
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
   authDomain: "YOUR_PROJECT.firebaseapp.com",
@@ -39,47 +78,64 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-const div = document.getElementById("products");
+let cart = [];
 
-// 🔥 حل قوي جداً
-db.ref().on("value", (snap) => {
+const productsDiv = document.getElementById("products");
+const cartDiv = document.getElementById("cart");
 
-  div.innerHTML = "";
+// 🟢 عرض المنتجات
+db.ref("products").on("value", (snap) => {
 
-  if (!snap.exists()) {
-    div.innerHTML = "لا توجد بيانات في Firebase";
-    return;
-  }
+  productsDiv.innerHTML = "";
 
-  snap.forEach((section) => {
+  snap.forEach((p) => {
+    const d = p.val();
 
-    section.forEach((child) => {
+    const name = d.name || "بدون اسم";
+    const price = d.price || 0;
+    const img = d.image || "";
 
-      const d = child.val();
-
-      let name = "بدون اسم";
-      let price = 0;
-
-      if (typeof d === "string") {
-        name = d;
-      }
-
-      if (typeof d === "object") {
-        name = d.name || d.title || d.product || "بدون اسم";
-        price = d.price || 0;
-      }
-
-      div.innerHTML += `
-        <div class="product">
-          <h3>${name}</h3>
-          <p class="price">${price} ريال</p>
-        </div>
-      `;
-    });
-
+    productsDiv.innerHTML += `
+      <div class="product">
+        <img src="${img}">
+        <h3>${name}</h3>
+        <p class="price">${price} ريال</p>
+        <button onclick="addCart('${name}',${price})">إضافة للسلة</button>
+      </div>
+    `;
   });
 
 });
+
+// 🟡 السلة
+function addCart(name, price){
+  cart.push({name, price});
+  renderCart();
+}
+
+function renderCart(){
+  cartDiv.innerHTML = "";
+
+  let total = 0;
+
+  cart.forEach((c, i) => {
+    total += c.price;
+
+    cartDiv.innerHTML += `
+      <div>
+        ${c.name} - ${c.price}
+        <button onclick="removeItem(${i})">❌</button>
+      </div>
+    `;
+  });
+
+  cartDiv.innerHTML += `<hr>المجموع: ${total} ريال`;
+}
+
+function removeItem(i){
+  cart.splice(i,1);
+  renderCart();
+}
 </script>
 
 </body>
