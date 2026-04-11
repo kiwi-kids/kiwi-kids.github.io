@@ -6,90 +6,94 @@
 <title>Kiwi Kids Store</title>
 
 <style>
-body {
+body{
     font-family: Arial;
-    margin: 0;
-    background: #f5f5f5;
+    margin:0;
+    background:#f5f5f5;
 }
 
-header {
-    background: #ff69b4;
-    color: white;
-    padding: 15px;
-    text-align: center;
-}
-
-/* زر السلة */
-.cart-toggle {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background: #ff69b4;
-    color: white;
-    padding: 15px;
-    border-radius: 50%;
-    font-size: 20px;
-    cursor: pointer;
+header{
+    background:#ff69b4;
+    color:#fff;
+    padding:15px;
+    text-align:center;
 }
 
 /* المنتجات */
-.products {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-    padding: 10px;
+.products{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:10px;
+    padding:10px;
 }
 
-.product {
-    background: white;
-    padding: 10px;
-    border-radius: 10px;
-    text-align: center;
+.product{
+    background:#fff;
+    padding:10px;
+    border-radius:10px;
+    text-align:center;
 }
 
-.product img {
-    width: 100%;
-    height: 150px;
-    object-fit: cover;
-    border-radius: 10px;
+.product img{
+    width:100%;
+    height:150px;
+    object-fit:cover;
+    border-radius:10px;
 }
 
-button {
-    margin-top: 5px;
-    padding: 6px;
-    border: none;
-    border-radius: 5px;
-    color: white;
-    cursor: pointer;
+button{
+    margin-top:5px;
+    padding:6px;
+    border:none;
+    border-radius:6px;
+    color:#fff;
+    cursor:pointer;
 }
 
-.edit { background: orange; }
-.delete { background: red; }
-.cart-btn { background: #ff69b4; }
-.add-btn {
-    margin: 10px;
-    background: green;
-    padding: 10px;
-    width: 95%;
-    border-radius: 8px;
+.cart-btn{background:#ff69b4;}
+
+/* زر السلة */
+.cart-icon{
+    position:fixed;
+    bottom:20px;
+    right:20px;
+    background:#ff69b4;
+    color:#fff;
+    padding:15px;
+    border-radius:50%;
+    font-size:20px;
+    cursor:pointer;
 }
 
-/* السلة (مخفية) */
-.cart {
-    position: fixed;
-    bottom: -100%;
-    left: 0;
-    width: 100%;
-    background: white;
-    padding: 15px;
-    border-top: 2px solid #ccc;
-    transition: 0.3s;
-    max-height: 60%;
-    overflow-y: auto;
+/* خلفية */
+.overlay{
+    position:fixed;
+    top:0;left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.5);
+    display:none;
 }
 
-.cart.active {
-    bottom: 0;
+/* السلة الجانبية */
+.cart{
+    position:fixed;
+    top:0;
+    right:-320px;
+    width:300px;
+    height:100%;
+    background:#fff;
+    padding:15px;
+    transition:0.3s;
+    overflow-y:auto;
+}
+
+.cart.active{
+    right:0;
+}
+
+.overlay.active{
+    display:block;
 }
 </style>
 </head>
@@ -98,157 +102,94 @@ button {
 
 <header>🛒 Kiwi Kids</header>
 
-<button class="add-btn" onclick="addProduct()">➕ إضافة منتج</button>
-
 <div class="products" id="products"></div>
 
-<!-- زر السلة -->
-<div class="cart-toggle" onclick="toggleCart()">🛒</div>
+<div class="cart-icon" onclick="toggleCart()">🛒</div>
 
-<!-- السلة -->
+<div class="overlay" id="overlay" onclick="toggleCart()"></div>
+
 <div class="cart" id="cart">
     <h3>السلة</h3>
     <div id="cart-items"></div>
     <h4 id="total">المجموع: 0 ريال</h4>
-    <button onclick="sendOrder()">إرسال الطلب</button>
+    <button style="background:#ff69b4;width:100%;" onclick="sendOrder()">إرسال الطلب واتساب</button>
 </div>
 
 <script>
-let products = JSON.parse(localStorage.getItem("products")) || [];
+let products = JSON.parse(localStorage.getItem("products")) || [
+    {name:"فستان 1", price:150, image:"https://i.imgur.com/3ZQ3Z6G.jpg"},
+    {name:"فستان 2", price:130, image:"https://i.imgur.com/5tj6S7O.jpg"},
+    {name:"فستان 3", price:170, image:"https://i.imgur.com/V4RclNb.jpg"}
+];
+
 let cart = [];
 
-function save() {
-    localStorage.setItem("products", JSON.stringify(products));
-}
+function showProducts(){
+    let c = document.getElementById("products");
+    c.innerHTML = "";
 
-function showProducts() {
-    let container = document.getElementById("products");
-    container.innerHTML = "";
-
-    products.forEach((p, i) => {
-        container.innerHTML += `
+    products.forEach((p,i)=>{
+        c.innerHTML += `
         <div class="product">
             <img src="${p.image}">
             <h3>${p.name}</h3>
             <p>${p.price} ريال</p>
-
             <button class="cart-btn" onclick="addToCart(${i})">أضف للسلة</button>
-            <button class="edit" onclick="editProduct(${i})">تعديل</button>
-            <button class="delete" onclick="deleteProduct(${i})">حذف</button>
         </div>`;
     });
 }
 
-function addProduct() {
-    let name = prompt("اسم المنتج:");
-    let price = prompt("السعر:");
+function addToCart(i){
+    let item = cart.find(c=>c.name===products[i].name);
 
-    let fileInput = document.createElement("input");
-    fileInput.type = "file";
-    fileInput.accept = "image/*";
-
-    fileInput.onchange = function() {
-        let reader = new FileReader();
-        reader.onload = function(e) {
-            products.push({
-                name: name,
-                price: price,
-                image: e.target.result
-            });
-            save();
-            showProducts();
-        };
-        reader.readAsDataURL(fileInput.files[0]);
-    };
-
-    fileInput.click();
-}
-
-function editProduct(index) {
-    let name = prompt("اسم جديد:", products[index].name);
-    let price = prompt("سعر جديد:", products[index].price);
-
-    let changeImage = confirm("تغيير الصورة؟");
-
-    if (changeImage) {
-        let fileInput = document.createElement("input");
-        fileInput.type = "file";
-
-        fileInput.onchange = function() {
-            let reader = new FileReader();
-            reader.onload = function(e) {
-                products[index] = { name, price, image: e.target.result };
-                save();
-                showProducts();
-            };
-            reader.readAsDataURL(fileInput.files[0]);
-        };
-
-        fileInput.click();
-    } else {
-        products[index].name = name;
-        products[index].price = price;
-        save();
-        showProducts();
-    }
-}
-
-function deleteProduct(index) {
-    if (confirm("متأكد؟")) {
-        products.splice(index, 1);
-        save();
-        showProducts();
-    }
-}
-
-function addToCart(index) {
-    let item = cart.find(c => c.name === products[index].name);
-
-    if (item) item.qty++;
-    else cart.push({...products[index], qty:1});
+    if(item) item.qty++;
+    else cart.push({...products[i], qty:1});
 
     showCart();
 }
 
-function showCart() {
-    let container = document.getElementById("cart-items");
+function showCart(){
+    let c = document.getElementById("cart-items");
     let total = 0;
+    c.innerHTML = "";
 
-    container.innerHTML = "";
-
-    cart.forEach((item, i) => {
+    cart.forEach((item,i)=>{
         total += item.price * item.qty;
 
-        container.innerHTML += `
-        <div>
+        c.innerHTML += `
+        <div style="margin-bottom:10px;">
             ${item.name} (${item.qty})
-            <button onclick="changeQty(${i},1)">+</button>
-            <button onclick="changeQty(${i},-1)">-</button>
+            <div>
+                <button onclick="changeQty(${i},1)" style="background:green;">+</button>
+                <button onclick="changeQty(${i},-1)" style="background:red;">-</button>
+            </div>
         </div>`;
     });
 
     document.getElementById("total").innerText = "المجموع: " + total + " ريال";
 }
 
-function changeQty(i, change) {
-    cart[i].qty += change;
-    if (cart[i].qty <= 0) cart.splice(i,1);
+function changeQty(i,val){
+    cart[i].qty += val;
+    if(cart[i].qty<=0) cart.splice(i,1);
     showCart();
 }
 
-function toggleCart() {
+function toggleCart(){
     document.getElementById("cart").classList.toggle("active");
+    document.getElementById("overlay").classList.toggle("active");
 }
 
-function sendOrder() {
-    if (cart.length === 0) return alert("السلة فاضية");
+function sendOrder(){
+    if(cart.length===0) return alert("السلة فاضية");
 
     let msg = "طلب جديد:%0A";
-    cart.forEach(item => {
-        msg += item.name + " × " + item.qty + "%0A";
+
+    cart.forEach(i=>{
+        msg += i.name + " × " + i.qty + "%0A";
     });
 
-    window.open("https://wa.me/966537585439?text=" + msg);
+    window.open("https://wa.me/966537585439?text="+msg);
 }
 
 showProducts();
