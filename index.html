@@ -17,7 +17,17 @@ header {
     color: white;
     padding: 15px;
     text-align: center;
-    font-size: 22px;
+}
+
+/* زر الإضافة */
+.add-btn {
+    margin: 10px;
+    background: green;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    width: 95%;
 }
 
 /* المنتجات */
@@ -30,8 +40,8 @@ header {
 
 .product {
     background: white;
-    border-radius: 10px;
     padding: 10px;
+    border-radius: 10px;
     text-align: center;
 }
 
@@ -42,74 +52,32 @@ header {
     border-radius: 10px;
 }
 
-button {
-    background: #ff69b4;
-    border: none;
-    color: white;
-    padding: 8px;
-    border-radius: 5px;
-    margin-top: 5px;
-    cursor: pointer;
-}
-
 /* السلة */
 .cart {
     position: fixed;
     bottom: 0;
     width: 100%;
     background: white;
-    border-top: 2px solid #ccc;
     padding: 10px;
-    max-height: 250px;
-    overflow-y: auto;
-}
-
-.cart-item {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 5px;
+    border-top: 2px solid #ccc;
 }
 </style>
-
 </head>
 
 <body>
 
 <header>🛒 Kiwi Kids</header>
 
+<button class="add-btn" onclick="addProduct()">➕ إضافة منتج</button>
+
 <div class="products" id="products"></div>
 
 <div class="cart">
-    <h3>السلة</h3>
-    <div id="cart-items"></div>
     <h4 id="total">المجموع: 0 ريال</h4>
-    <button onclick="sendOrder()">إرسال الطلب واتساب</button>
 </div>
 
 <script>
-let products = [
-    {
-        name: "فستان 1",
-        price: 150,
-        image: "https://i.imgur.com/3ZQ3Z6G.jpg"
-    },
-    {
-        name: "فستان 2",
-        price: 130,
-        image: "https://i.imgur.com/5tj6S7O.jpg"
-    },
-    {
-        name: "فستان 3",
-        price: 170,
-        image: "https://i.imgur.com/V4RclNb.jpg"
-    },
-    {
-        name: "فستان 4",
-        price: 140,
-        image: "https://i.imgur.com/VX5JgJQ.jpg"
-    }
-];
-
+let products = JSON.parse(localStorage.getItem("products")) || [];
 let cart = [];
 
 function showProducts() {
@@ -123,9 +91,38 @@ function showProducts() {
             <h3>${p.name}</h3>
             <p>${p.price} ريال</p>
             <button onclick="addToCart(${i})">أضف للسلة</button>
-        </div>
-        `;
+        </div>`;
     });
+}
+
+function addProduct() {
+    let name = prompt("اسم المنتج:");
+    let price = prompt("السعر:");
+
+    let fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.accept = "image/*";
+
+    fileInput.onchange = function() {
+        let file = fileInput.files[0];
+        let reader = new FileReader();
+
+        reader.onload = function(e) {
+            let newProduct = {
+                name: name,
+                price: price,
+                image: e.target.result
+            };
+
+            products.push(newProduct);
+            localStorage.setItem("products", JSON.stringify(products));
+            showProducts();
+        };
+
+        reader.readAsDataURL(file);
+    };
+
+    fileInput.click();
 }
 
 function addToCart(index) {
@@ -137,54 +134,16 @@ function addToCart(index) {
         cart.push({...products[index], qty:1});
     }
 
-    showCart();
+    updateTotal();
 }
 
-function showCart() {
-    let container = document.getElementById("cart-items");
+function updateTotal() {
     let total = 0;
-
-    container.innerHTML = "";
-
-    cart.forEach((item, i) => {
+    cart.forEach(item => {
         total += item.price * item.qty;
-
-        container.innerHTML += `
-        <div class="cart-item">
-            ${item.name} (${item.qty})
-            <div>
-                <button onclick="changeQty(${i},1)">+</button>
-                <button onclick="changeQty(${i},-1)">-</button>
-            </div>
-        </div>
-        `;
     });
 
     document.getElementById("total").innerText = "المجموع: " + total + " ريال";
-}
-
-function changeQty(index, change) {
-    cart[index].qty += change;
-
-    if (cart[index].qty <= 0) {
-        cart.splice(index,1);
-    }
-
-    showCart();
-}
-
-function sendOrder() {
-    if (cart.length === 0) {
-        alert("السلة فاضية");
-        return;
-    }
-
-    let message = "طلب جديد:%0A";
-    cart.forEach(item => {
-        message += item.name + " × " + item.qty + "%0A";
-    });
-
-    window.open("https://wa.me/966537585439?text=" + message);
 }
 
 showProducts();
