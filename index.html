@@ -3,78 +3,71 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kiwi Kids</title>
+<title>Kiwi Kids Store</title>
 
 <style>
 body {
     font-family: Arial;
     margin: 0;
-    background: #fff;
+    background: #f5f5f5;
 }
 
 header {
     background: #ff69b4;
+    color: white;
     padding: 15px;
     text-align: center;
-    font-size: 24px;
-    color: white;
+    font-size: 22px;
 }
 
+/* المنتجات */
 .products {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    margin: 15px;
-}
-
-.product-row {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
     gap: 10px;
-    overflow-x: auto;
+    padding: 10px;
 }
 
 .product {
-    min-width: 200px;
-    border: 1px solid #eee;
+    background: white;
     border-radius: 10px;
     padding: 10px;
     text-align: center;
 }
 
-.main-img {
+.product img {
     width: 100%;
-    height: 180px;
+    height: 150px;
     object-fit: cover;
     border-radius: 10px;
-}
-
-.gallery {
-    display: flex;
-    gap: 5px;
-    margin-top: 8px;
-}
-
-.gallery img {
-    width: 55px;
-    height: 55px;
-    object-fit: cover;
-    border-radius: 6px;
-    cursor: pointer;
-    border: 2px solid transparent;
-}
-
-.gallery img.active {
-    border: 2px solid #ff69b4;
 }
 
 button {
     background: #ff69b4;
     border: none;
     color: white;
-    padding: 10px;
-    margin-top: 10px;
+    padding: 8px;
     border-radius: 5px;
+    margin-top: 5px;
     cursor: pointer;
+}
+
+/* السلة */
+.cart {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background: white;
+    border-top: 2px solid #ccc;
+    padding: 10px;
+    max-height: 250px;
+    overflow-y: auto;
+}
+
+.cart-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
 }
 </style>
 
@@ -82,58 +75,119 @@ button {
 
 <body>
 
-<header>Kiwi Kids 👗</header>
+<header>🛒 Kiwi Kids</header>
 
-<div class="products">
+<div class="products" id="products"></div>
 
-<div class="product-row">
-
-<div class="product">
-<img id="m1" class="main-img" src="https://i.imgur.com/3ZQ3Z6G.jpg">
-<h3>فستان 1</h3>
-<p>150 ريال</p>
-
-<div class="gallery">
-<img src="https://i.imgur.com/3ZQ3Z6G.jpg" class="active" onclick="changeImage('m1', this)">
-<img src="https://i.imgur.com/5tj6S7O.jpg" onclick="changeImage('m1', this)">
-<img src="https://i.imgur.com/V4RclNb.jpg" onclick="changeImage('m1', this)">
-</div>
-
-<button onclick="order('فستان 1')">اطلب الآن</button>
-</div>
-
-<div class="product">
-<img id="m2" class="main-img" src="https://i.imgur.com/5tj6S7O.jpg">
-<h3>فستان 2</h3>
-<p>130 ريال</p>
-
-<div class="gallery">
-<img src="https://i.imgur.com/5tj6S7O.jpg" class="active" onclick="changeImage('m2', this)">
-<img src="https://i.imgur.com/V4RclNb.jpg" onclick="changeImage('m2', this)">
-<img src="https://i.imgur.com/3ZQ3Z6G.jpg" onclick="changeImage('m2', this)">
-</div>
-
-<button onclick="order('فستان 2')">اطلب الآن</button>
-</div>
-
-</div>
-
+<div class="cart">
+    <h3>السلة</h3>
+    <div id="cart-items"></div>
+    <h4 id="total">المجموع: 0 ريال</h4>
+    <button onclick="sendOrder()">إرسال الطلب واتساب</button>
 </div>
 
 <script>
-function order(product) {
-    let message = "أبغى أطلب: " + product;
-    window.open("https://wa.me/966537585439?text=" + encodeURIComponent(message));
+let products = [
+    {
+        name: "فستان 1",
+        price: 150,
+        image: "https://i.imgur.com/3ZQ3Z6G.jpg"
+    },
+    {
+        name: "فستان 2",
+        price: 130,
+        image: "https://i.imgur.com/5tj6S7O.jpg"
+    },
+    {
+        name: "فستان 3",
+        price: 170,
+        image: "https://i.imgur.com/V4RclNb.jpg"
+    },
+    {
+        name: "فستان 4",
+        price: 140,
+        image: "https://i.imgur.com/VX5JgJQ.jpg"
+    }
+];
+
+let cart = [];
+
+function showProducts() {
+    let container = document.getElementById("products");
+    container.innerHTML = "";
+
+    products.forEach((p, i) => {
+        container.innerHTML += `
+        <div class="product">
+            <img src="${p.image}">
+            <h3>${p.name}</h3>
+            <p>${p.price} ريال</p>
+            <button onclick="addToCart(${i})">أضف للسلة</button>
+        </div>
+        `;
+    });
 }
 
-function changeImage(id, el) {
-    document.getElementById(id).src = el.src;
+function addToCart(index) {
+    let item = cart.find(c => c.name === products[index].name);
 
-    let images = el.parentElement.querySelectorAll("img");
-    images.forEach(img => img.classList.remove("active"));
+    if (item) {
+        item.qty++;
+    } else {
+        cart.push({...products[index], qty:1});
+    }
 
-    el.classList.add("active");
+    showCart();
 }
+
+function showCart() {
+    let container = document.getElementById("cart-items");
+    let total = 0;
+
+    container.innerHTML = "";
+
+    cart.forEach((item, i) => {
+        total += item.price * item.qty;
+
+        container.innerHTML += `
+        <div class="cart-item">
+            ${item.name} (${item.qty})
+            <div>
+                <button onclick="changeQty(${i},1)">+</button>
+                <button onclick="changeQty(${i},-1)">-</button>
+            </div>
+        </div>
+        `;
+    });
+
+    document.getElementById("total").innerText = "المجموع: " + total + " ريال";
+}
+
+function changeQty(index, change) {
+    cart[index].qty += change;
+
+    if (cart[index].qty <= 0) {
+        cart.splice(index,1);
+    }
+
+    showCart();
+}
+
+function sendOrder() {
+    if (cart.length === 0) {
+        alert("السلة فاضية");
+        return;
+    }
+
+    let message = "طلب جديد:%0A";
+    cart.forEach(item => {
+        message += item.name + " × " + item.qty + "%0A";
+    });
+
+    window.open("https://wa.me/966537585439?text=" + message);
+}
+
+showProducts();
 </script>
 
 </body>
