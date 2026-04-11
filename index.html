@@ -19,7 +19,6 @@ header {
     text-align: center;
 }
 
-/* زر الإضافة */
 .add-btn {
     margin: 10px;
     background: green;
@@ -30,7 +29,6 @@ header {
     width: 95%;
 }
 
-/* المنتجات */
 .products {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -52,7 +50,19 @@ header {
     border-radius: 10px;
 }
 
-/* السلة */
+button {
+    margin-top: 5px;
+    padding: 6px;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+}
+
+.edit { background: orange; }
+.delete { background: red; }
+.cart-btn { background: #ff69b4; }
+
 .cart {
     position: fixed;
     bottom: 0;
@@ -80,6 +90,10 @@ header {
 let products = JSON.parse(localStorage.getItem("products")) || [];
 let cart = [];
 
+function save() {
+    localStorage.setItem("products", JSON.stringify(products));
+}
+
 function showProducts() {
     let container = document.getElementById("products");
     container.innerHTML = "";
@@ -90,7 +104,10 @@ function showProducts() {
             <img src="${p.image}">
             <h3>${p.name}</h3>
             <p>${p.price} ريال</p>
-            <button onclick="addToCart(${i})">أضف للسلة</button>
+
+            <button class="cart-btn" onclick="addToCart(${i})">أضف للسلة</button>
+            <button class="edit" onclick="editProduct(${i})">تعديل</button>
+            <button class="delete" onclick="deleteProduct(${i})">حذف</button>
         </div>`;
     });
 }
@@ -108,14 +125,12 @@ function addProduct() {
         let reader = new FileReader();
 
         reader.onload = function(e) {
-            let newProduct = {
+            products.push({
                 name: name,
                 price: price,
                 image: e.target.result
-            };
-
-            products.push(newProduct);
-            localStorage.setItem("products", JSON.stringify(products));
+            });
+            save();
             showProducts();
         };
 
@@ -123,6 +138,48 @@ function addProduct() {
     };
 
     fileInput.click();
+}
+
+function editProduct(index) {
+    let name = prompt("اسم جديد:", products[index].name);
+    let price = prompt("سعر جديد:", products[index].price);
+
+    let changeImage = confirm("هل تريد تغيير الصورة؟");
+
+    if (changeImage) {
+        let fileInput = document.createElement("input");
+        fileInput.type = "file";
+        fileInput.accept = "image/*";
+
+        fileInput.onchange = function() {
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                products[index] = {
+                    name: name,
+                    price: price,
+                    image: e.target.result
+                };
+                save();
+                showProducts();
+            };
+            reader.readAsDataURL(fileInput.files[0]);
+        };
+
+        fileInput.click();
+    } else {
+        products[index].name = name;
+        products[index].price = price;
+        save();
+        showProducts();
+    }
+}
+
+function deleteProduct(index) {
+    if (confirm("متأكد تحذف المنتج؟")) {
+        products.splice(index, 1);
+        save();
+        showProducts();
+    }
 }
 
 function addToCart(index) {
