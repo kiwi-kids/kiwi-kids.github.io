@@ -2,24 +2,70 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>متجر برو</title>
+<title>متجر</title>
 
 <style>
 body{
   margin:0;
   font-family:Arial;
   direction:rtl;
-  background:#f6f7fb;
+  background:#f2f2f2;
 }
 
-/* هيدر */
-header{
-  background:linear-gradient(90deg,#ff3d7f,#ff7a59);
+/* الهيدر */
+.header{
+  background:#f5c400;
+  padding:10px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.search{
+  flex:1;
+  display:flex;
+  background:white;
+  border-radius:20px;
+  padding:8px;
+  align-items:center;
+}
+
+.search input{
+  border:none;
+  outline:none;
+  width:100%;
+}
+
+.icon{
+  font-size:22px;
+  padding:5px;
+}
+
+.cart-badge{
+  position:relative;
+}
+
+.badge{
+  position:absolute;
+  top:-5px;
+  left:-5px;
+  background:red;
   color:white;
-  padding:15px;
-  text-align:center;
-  font-size:18px;
-  font-weight:bold;
+  border-radius:50%;
+  font-size:12px;
+  width:18px;
+  height:18px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+/* بانر */
+.banner{
+  margin:10px;
+  background:white;
+  border-radius:12px;
+  overflow:hidden;
 }
 
 /* المنتجات */
@@ -34,12 +80,11 @@ header{
   background:white;
   border-radius:12px;
   overflow:hidden;
-  box-shadow:0 2px 8px rgba(0,0,0,0.1);
 }
 
 .card img{
   width:100%;
-  height:140px;
+  height:130px;
   object-fit:cover;
 }
 
@@ -47,170 +92,144 @@ header{
   padding:8px;
 }
 
-button{
+.price{
+  color:#c0392b;
+  font-weight:bold;
+}
+
+.btn{
   width:100%;
   padding:8px;
+  background:#f5c400;
   border:none;
-  background:#ff3d7f;
-  color:white;
   border-radius:8px;
 }
 
-/* إضافة منتج */
-.admin{
-  background:white;
-  margin:10px;
-  padding:10px;
-  border-radius:12px;
+/* تسجيل الدخول */
+.login{
+  position:fixed;
+  top:0;
+  right:0;
+  left:0;
+  bottom:0;
+  background:rgba(0,0,0,0.5);
+  display:flex;
+  align-items:center;
+  justify-content:center;
 }
 
-input{
+.login-box{
+  background:white;
+  padding:15px;
+  border-radius:12px;
+  width:80%;
+}
+
+.login-box input{
   width:100%;
-  padding:8px;
+  padding:10px;
   margin:5px 0;
 }
 
-/* السلة */
+.login-btn{
+  background:#f5c400;
+  width:100%;
+  padding:10px;
+  border:none;
+}
+
+/* سلة */
 .cart{
   position:fixed;
   bottom:0;
   left:0;
   right:0;
   background:white;
-  border-top:1px solid #ddd;
   padding:10px;
-}
-
-.cart-item{
-  font-size:14px;
-  margin:3px 0;
-}
-
-.total{
-  font-weight:bold;
+  border-top:1px solid #ddd;
 }
 </style>
 </head>
 
 <body>
 
-<header>🛍️ متجر برو احترافي</header>
-
-<div class="admin">
-  <h3>إضافة منتج</h3>
-
-  <input type="text" id="name" placeholder="اسم المنتج">
-  <input type="number" id="price" placeholder="السعر">
-  <input type="file" id="file">
-
-  <button onclick="addProduct()">رفع المنتج</button>
-  <p id="status"></p>
+<!-- تسجيل الدخول -->
+<div class="login" id="login">
+  <div class="login-box">
+    <h3>تسجيل دخول</h3>
+    <input type="email" placeholder="الإيميل">
+    <input type="password" placeholder="كلمة المرور">
+    <button class="login-btn" onclick="document.getElementById('login').style.display='none'">
+      دخول
+    </button>
+  </div>
 </div>
 
+<!-- الهيدر -->
+<div class="header">
+  <div class="icon">☰</div>
+
+  <div class="search">
+    🔍
+    <input placeholder="ابحث عن المنتجات">
+  </div>
+
+  <div class="cart-badge">
+    🛒
+    <div class="badge" id="count">0</div>
+  </div>
+</div>
+
+<!-- بانر -->
+<div class="banner">
+  <img src="https://via.placeholder.com/500x180" width="100%">
+</div>
+
+<!-- المنتجات -->
 <div class="grid" id="grid"></div>
 
 <!-- السلة -->
 <div class="cart">
-  <div id="cart"></div>
-  <div class="total" id="total">المجموع: 0 ريال</div>
+  🛒 المجموع: <span id="total">0</span> ريال
 </div>
 
-<script type="module">
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
-
-const firebaseConfig = {
-  apiKey: "XXXX",
-  authDomain: "XXXX",
-  databaseURL: "XXXX",
-  projectId: "XXXX",
-  storageBucket: "XXXX",
-  messagingSenderId: "XXXX",
-  appId: "XXXX"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-const storage = getStorage(app);
-
-const productsRef = ref(db,"products");
-
-let file = null;
+<script>
 let cart = [];
 
-document.getElementById("file").addEventListener("change",(e)=>{
-  file = e.target.files[0];
-});
+let products = [
+  {name:"فستان بناتي",price:120,img:"https://via.placeholder.com/200"},
+  {name:"حذاء أطفال",price:150,img:"https://via.placeholder.com/200"},
+  {name:"دمية",price:80,img:"https://via.placeholder.com/200"},
+];
 
-/* إضافة منتج */
-window.addProduct = async function(){
+function load(){
+  let box = document.getElementById("grid");
 
-  const name = document.getElementById("name").value;
-  const price = document.getElementById("price").value;
-
-  if(!name || !price || !file){
-    alert("أكمل البيانات");
-    return;
-  }
-
-  document.getElementById("status").innerText = "جاري الرفع...";
-
-  const imgRef = sRef(storage,"p/"+Date.now());
-  await uploadBytes(imgRef,file);
-  const url = await getDownloadURL(imgRef);
-
-  await push(productsRef,{
-    name,
-    price,
-    image:url
-  });
-
-  document.getElementById("status").innerText = "تم إضافة المنتج ✅";
-}
-
-/* عرض المنتجات */
-onValue(productsRef,(snap)=>{
-  const data = snap.val();
-  const box = document.getElementById("grid");
-  box.innerHTML="";
-
-  for(let id in data){
-    let p = data[id];
-
+  products.forEach((p,i)=>{
     box.innerHTML += `
       <div class="card">
-        <img src="${p.image}">
+        <img src="${p.img}">
         <div class="info">
           <h4>${p.name}</h4>
-          <p>${p.price} ريال</p>
-          <button onclick='addCart("${p.name}",${p.price})'>أضف للسلة</button>
+          <div class="price">${p.price} ريال</div>
+          <button class="btn" onclick="add(${i})">عرض المنتج</button>
         </div>
       </div>
     `;
-  }
-});
-
-/* السلة */
-window.addCart = function(name,price){
-  cart.push({name,price});
-  renderCart();
-};
-
-function renderCart(){
-  let box = document.getElementById("cart");
-  let total = 0;
-  box.innerHTML="";
-
-  cart.forEach(i=>{
-    total += Number(i.price);
-    box.innerHTML += `<div class="cart-item">${i.name} - ${i.price} ريال</div>`;
   });
-
-  document.getElementById("total").innerText = "المجموع: " + total + " ريال";
 }
 
+function add(i){
+  cart.push(products[i]);
+  document.getElementById("count").innerText = cart.length;
+
+  let total = 0;
+  cart.forEach(p=> total += p.price);
+
+  document.getElementById("total").innerText = total;
+}
+
+load();
 </script>
 
 </body>
