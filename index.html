@@ -2,194 +2,114 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kiwi Kids Store</title>
-
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
+<title>متجر</title>
 <style>
-body{font-family:Arial;margin:0;background:#f5f5f5;}
-header{background:#ff69b4;color:#fff;padding:15px;text-align:center;}
-
-.add-btn{
-background:green;color:white;padding:10px;width:95%;
-margin:10px;border:none;border-radius:8px;
-}
-
-.products{
-display:grid;
-grid-template-columns:repeat(2,1fr);
-gap:10px;padding:10px;
-}
-
-.product{
-background:white;padding:10px;border-radius:10px;text-align:center;
-}
-
-.product img{
-width:100%;height:150px;object-fit:cover;border-radius:10px;
-}
-
-button{
-margin-top:5px;padding:6px;border:none;border-radius:6px;color:white;
-cursor:pointer;
-}
-
-.cart-btn{background:#ff69b4;}
-
-.cart-icon{
-position:fixed;bottom:20px;right:20px;
-background:#ff69b4;color:white;padding:15px;border-radius:50%;
-}
-
-.overlay{
-position:fixed;top:0;left:0;width:100%;height:100%;
-background:rgba(0,0,0,0.5);display:none;
-}
-
-.cart{
-position:fixed;top:0;right:-320px;width:300px;height:100%;
-background:white;padding:15px;transition:0.3s;overflow:auto;
-}
-
-.cart.active{right:0;}
-.overlay.active{display:block;}
+body { font-family: Arial; direction: rtl; padding: 20px; }
+input, button { margin: 5px; padding: 10px; }
+.product { border: 1px solid #ccc; padding: 10px; margin: 10px; }
+img { width: 120px; height: 120px; object-fit: cover; }
 </style>
 </head>
-
 <body>
 
-<header>🛒 Kiwi Kids</header>
+<h2>إضافة منتج</h2>
 
-<button class="add-btn" onclick="addProduct()">➕ إضافة منتج</button>
+<input type="text" id="name" placeholder="اسم المنتج"><br>
+<input type="number" id="price" placeholder="السعر"><br>
 
-<div class="products" id="products"></div>
+<input type="file" id="fileInput" accept="image/*"><br>
 
-<div class="cart-icon" onclick="toggleCart()">🛒</div>
+<button onclick="addProduct()">إضافة المنتج</button>
 
-<div class="overlay" id="overlay" onclick="toggleCart()"></div>
+<p id="status"></p>
 
-<div class="cart" id="cart">
-<h3>السلة</h3>
-<div id="cart-items"></div>
-<h4 id="total">المجموع: 0 ريال</h4>
-<button style="background:#ff69b4;width:100%;" onclick="sendOrder()">طلب واتساب</button>
-</div>
+<hr>
 
-<script>
+<h2>المنتجات</h2>
+<div id="products"></div>
 
-// 🔥 بياناتك جاهزة
+<!-- Firebase -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+
 const firebaseConfig = {
-  apiKey: "AIzaSyB-BudNyGwbDl12jzXGnhkVX_nXWZSBVac",
-  authDomain: "kiwi-kids-store-a10c3.firebaseapp.com",
-  databaseURL: "https://kiwi-kids-store-a10c3-default-rtdb.firebaseio.com",
-  projectId: "kiwi-kids-store-a10c3",
-  storageBucket: "kiwi-kids-store-a10c3.firebasestorage.app",
-  messagingSenderId: "353021674778",
-  appId: "1:353021674778:web:3e2ac25f4d8dd7a94f98a3",
-  measurementId: "G-Y7XDQ7FD4Z"
+  apiKey: "XXXX",
+  authDomain: "XXXX",
+  databaseURL: "XXXX",
+  projectId: "XXXX",
+  storageBucket: "XXXX",
+  messagingSenderId: "XXXX",
+  appId: "XXXX"
 };
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const storage = getStorage(app);
 
-let cart = [];
+const productsRef = ref(db, "products");
 
-/* تحميل المنتجات */
-function loadProducts(){
-db.ref("products").on("value", snap=>{
-    let data = snap.val() || {};
-    let c = document.getElementById("products");
-    c.innerHTML = "";
+let selectedFile = null;
 
-    Object.keys(data).forEach(key=>{
-        let p = data[key];
-
-        c.innerHTML += `
-        <div class="product">
-            <img src="${p.image}">
-            <h3>${p.name}</h3>
-            <p>${p.price} ريال</p>
-            <button class="cart-btn" onclick='addToCart(${JSON.stringify(p)})'>
-            أضف للسلة
-            </button>
-        </div>`;
-    });
+// اختيار صورة
+document.getElementById("fileInput").addEventListener("change", (e) => {
+  selectedFile = e.target.files[0];
 });
-}
 
-/* إضافة منتج */
-function addProduct(){
-let name = prompt("اسم المنتج:");
-let price = prompt("السعر:");
+// إضافة منتج
+window.addProduct = async function () {
+  const name = document.getElementById("name").value;
+  const price = document.getElementById("price").value;
+  const status = document.getElementById("status");
 
-let input = document.createElement("input");
-input.type="file";
-input.accept="image/*";
+  if (!name || !price || !selectedFile) {
+    alert("أدخل البيانات كاملة");
+    return;
+  }
 
-input.onchange=function(){
-    let reader = new FileReader();
+  status.innerText = "جاري رفع الصورة...";
 
-    reader.onload=function(e){
-        db.ref("products").push({
-            name:name,
-            price:price,
-            image:e.target.result
-        });
-    };
+  // رفع الصورة
+  const imageRef = sRef(storage, "products/" + Date.now() + selectedFile.name);
+  await uploadBytes(imageRef, selectedFile);
+  const imageUrl = await getDownloadURL(imageRef);
 
-    reader.readAsDataURL(input.files[0]);
+  status.innerText = "جاري حفظ المنتج...";
+
+  // حفظ المنتج في قاعدة البيانات
+  push(productsRef, {
+    name: name,
+    price: price,
+    image: imageUrl
+  });
+
+  status.innerText = "تم إضافة المنتج ✅";
+
+  document.getElementById("name").value = "";
+  document.getElementById("price").value = "";
+  document.getElementById("fileInput").value = "";
+  selectedFile = null;
 };
 
-input.click();
-}
+// عرض المنتجات
+onValue(productsRef, (snapshot) => {
+  const data = snapshot.val();
+  const container = document.getElementById("products");
+  container.innerHTML = "";
 
-/* السلة */
-function addToCart(p){
-let item = cart.find(i=>i.name===p.name);
-if(item) item.qty++;
-else cart.push({...p, qty:1});
-showCart();
-}
+  for (let id in data) {
+    const p = data[id];
 
-function showCart(){
-let c = document.getElementById("cart-items");
-let total = 0;
-c.innerHTML="";
-
-cart.forEach((i,index)=>{
-    total += i.price * i.qty;
-    c.innerHTML += `
-    <div style="margin-bottom:10px;">
-        ${i.name} (${i.qty})
-    </div>`;
+    container.innerHTML += `
+      <div class="product">
+        <img src="${p.image}">
+        <h3>${p.name}</h3>
+        <p>${p.price} ريال</p>
+      </div>
+    `;
+  }
 });
-
-document.getElementById("total").innerText="المجموع: "+total+" ريال";
-}
-
-/* فتح */
-function toggleCart(){
-document.getElementById("cart").classList.toggle("active");
-document.getElementById("overlay").classList.toggle("active");
-}
-
-/* واتساب */
-function sendOrder(){
-if(cart.length===0) return alert("السلة فاضية");
-
-let msg="طلب:%0A";
-cart.forEach(i=>{
-msg+=i.name+" × "+i.qty+"%0A";
-});
-
-window.open("https://wa.me/966537585439?text="+msg);
-}
-
-loadProducts();
-
 </script>
 
 </body>
