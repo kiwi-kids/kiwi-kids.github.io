@@ -2,81 +2,72 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>متجر احترافي</title>
+<title>متجر برو</title>
 
 <style>
 body{
-  font-family: Arial;
-  direction: rtl;
   margin:0;
-  background:#f4f6f8;
+  font-family:Arial;
+  direction:rtl;
+  background:#f6f7fb;
 }
 
-/* الهيدر */
+/* هيدر */
 header{
-  background: linear-gradient(90deg,#ff4081,#ff6b6b);
+  background:linear-gradient(90deg,#ff3d7f,#ff7a59);
   color:white;
   padding:15px;
   text-align:center;
-  font-size:20px;
+  font-size:18px;
   font-weight:bold;
 }
 
-/* الأقسام */
-.container{
-  padding:10px;
-}
-
-/* كروت */
-.card{
-  background:white;
-  padding:15px;
-  border-radius:12px;
-  margin-bottom:10px;
-  box-shadow:0 2px 10px rgba(0,0,0,0.1);
-}
-
-/* إدخال */
-input,button{
-  width:100%;
-  padding:10px;
-  margin-top:8px;
-  border-radius:8px;
-  border:1px solid #ddd;
-  font-size:15px;
-}
-
-button{
-  background:#ff4081;
-  color:white;
-  border:none;
-  cursor:pointer;
-}
-
 /* المنتجات */
-.products{
+.grid{
   display:grid;
   grid-template-columns:repeat(2,1fr);
   gap:10px;
+  padding:10px;
 }
 
-.product{
+.card{
   background:white;
   border-radius:12px;
   overflow:hidden;
   box-shadow:0 2px 8px rgba(0,0,0,0.1);
-  text-align:center;
 }
 
-.product img{
+.card img{
   width:100%;
   height:140px;
   object-fit:cover;
 }
 
-.product button{
-  margin:5px;
-  font-size:13px;
+.card .info{
+  padding:8px;
+}
+
+button{
+  width:100%;
+  padding:8px;
+  border:none;
+  background:#ff3d7f;
+  color:white;
+  border-radius:8px;
+}
+
+/* إضافة منتج */
+.admin{
+  background:white;
+  margin:10px;
+  padding:10px;
+  border-radius:12px;
+}
+
+input{
+  width:100%;
+  padding:8px;
+  margin:5px 0;
 }
 
 /* السلة */
@@ -86,53 +77,46 @@ button{
   left:0;
   right:0;
   background:white;
-  box-shadow:0 -2px 10px rgba(0,0,0,0.2);
+  border-top:1px solid #ddd;
   padding:10px;
-}
-
-.cart h3{
-  margin:5px 0;
 }
 
 .cart-item{
   font-size:14px;
-  border-bottom:1px solid #eee;
-  padding:5px;
+  margin:3px 0;
+}
+
+.total{
+  font-weight:bold;
 }
 </style>
 </head>
 
 <body>
 
-<header>🛍️ متجر احترافي</header>
+<header>🛍️ متجر برو احترافي</header>
 
-<div class="container">
-
-<!-- إضافة منتج -->
-<div class="card">
-  <h3>إضافة منتج (أدمن)</h3>
+<div class="admin">
+  <h3>إضافة منتج</h3>
 
   <input type="text" id="name" placeholder="اسم المنتج">
   <input type="number" id="price" placeholder="السعر">
-  <input type="file" id="fileInput" accept="image/*">
+  <input type="file" id="file">
 
   <button onclick="addProduct()">رفع المنتج</button>
   <p id="status"></p>
 </div>
 
-<h3>المنتجات</h3>
-<div class="products" id="products"></div>
-
-</div>
+<div class="grid" id="grid"></div>
 
 <!-- السلة -->
 <div class="cart">
-  <h3>🛒 السلة</h3>
   <div id="cart"></div>
-  <h4 id="total">المجموع: 0 ريال</h4>
+  <div class="total" id="total">المجموع: 0 ريال</div>
 </div>
 
 <script type="module">
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
@@ -151,13 +135,12 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const storage = getStorage(app);
 
-const productsRef = ref(db, "products");
+const productsRef = ref(db,"products");
 
 let file = null;
 let cart = [];
 
-/* اختيار صورة */
-document.getElementById("fileInput").addEventListener("change",(e)=>{
+document.getElementById("file").addEventListener("change",(e)=>{
   file = e.target.files[0];
 });
 
@@ -166,17 +149,16 @@ window.addProduct = async function(){
 
   const name = document.getElementById("name").value;
   const price = document.getElementById("price").value;
-  const status = document.getElementById("status");
 
   if(!name || !price || !file){
     alert("أكمل البيانات");
     return;
   }
 
-  status.innerText = "جاري الرفع...";
+  document.getElementById("status").innerText = "جاري الرفع...";
 
-  const imgRef = sRef(storage, "products/" + Date.now());
-  await uploadBytes(imgRef, file);
+  const imgRef = sRef(storage,"p/"+Date.now());
+  await uploadBytes(imgRef,file);
   const url = await getDownloadURL(imgRef);
 
   await push(productsRef,{
@@ -185,66 +167,50 @@ window.addProduct = async function(){
     image:url
   });
 
-  status.innerText = "تم الإضافة ✅";
-
-  document.getElementById("name").value="";
-  document.getElementById("price").value="";
-  document.getElementById("fileInput").value="";
-  file=null;
-};
+  document.getElementById("status").innerText = "تم إضافة المنتج ✅";
+}
 
 /* عرض المنتجات */
 onValue(productsRef,(snap)=>{
   const data = snap.val();
-  const box = document.getElementById("products");
+  const box = document.getElementById("grid");
   box.innerHTML="";
 
   for(let id in data){
-    const p = data[id];
+    let p = data[id];
 
     box.innerHTML += `
-      <div class="product">
+      <div class="card">
         <img src="${p.image}">
-        <p>${p.name}</p>
-        <p>${p.price} ريال</p>
-        <button onclick='addToCart("${p.name}",${p.price})'>أضف للسلة</button>
+        <div class="info">
+          <h4>${p.name}</h4>
+          <p>${p.price} ريال</p>
+          <button onclick='addCart("${p.name}",${p.price})'>أضف للسلة</button>
+        </div>
       </div>
     `;
   }
 });
 
-/* إضافة للسلة */
-window.addToCart = function(name,price){
+/* السلة */
+window.addCart = function(name,price){
   cart.push({name,price});
   renderCart();
 };
 
-/* عرض السلة */
 function renderCart(){
   let box = document.getElementById("cart");
-  box.innerHTML = "";
-
   let total = 0;
+  box.innerHTML="";
 
-  cart.forEach((item,i)=>{
-    total += Number(item.price);
-
-    box.innerHTML += `
-      <div class="cart-item">
-        ${item.name} - ${item.price} ريال
-        <button onclick="removeItem(${i})">❌</button>
-      </div>
-    `;
+  cart.forEach(i=>{
+    total += Number(i.price);
+    box.innerHTML += `<div class="cart-item">${i.name} - ${i.price} ريال</div>`;
   });
 
   document.getElementById("total").innerText = "المجموع: " + total + " ريال";
 }
 
-/* حذف من السلة */
-window.removeItem = function(i){
-  cart.splice(i,1);
-  renderCart();
-};
 </script>
 
 </body>
