@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -7,7 +8,6 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
 
 <style>
 body{margin:0;font-family:tahoma;background:#f6f6f6}
@@ -42,12 +42,16 @@ padding:10px;
 }
 
 .card{
-background:#fff;border-radius:10px;overflow:hidden;
-box-shadow:0 2px 8px #0001;cursor:pointer
+background:#fff;border-radius:12px;overflow:hidden;
+box-shadow:0 4px 12px #0002;cursor:pointer;
+transition:.2s;
 }
 
-.card img{width:100%;height:130px;object-fit:cover}
-.card .p{padding:8px}
+.card:hover{transform:scale(1.03)}
+
+.card img{width:100%;height:140px;object-fit:cover}
+
+.card .p{padding:10px;font-weight:bold}
 
 /* CART */
 .overlay{
@@ -78,6 +82,11 @@ align-items:center;justify-content:center
 .modalBox{
 background:#fff;width:90%;border-radius:10px;padding:10px
 }
+
+button{
+background:#0a7cff;color:#fff;border:none;
+padding:10px;border-radius:8px;cursor:pointer;margin:3px
+}
 </style>
 </head>
 
@@ -87,7 +96,7 @@ background:#fff;width:90%;border-radius:10px;padding:10px
 <div class="iconBtn" onclick="openLogin()">👤</div>
 
 <div class="search">
-<input placeholder="ابحث عن منتج">
+<input id="search" placeholder="ابحث عن منتج">
 </div>
 
 <div style="position:relative" onclick="openCart()">
@@ -103,6 +112,8 @@ background:#fff;width:90%;border-radius:10px;padding:10px
 <div class="cartBox">
 <h3>السلة</h3>
 <div id="cartItems"></div>
+<h3 id="total"></h3>
+<button onclick="checkout()">إتمام الطلب</button>
 <button onclick="closeCart()">إغلاق</button>
 </div>
 </div>
@@ -119,7 +130,7 @@ background:#fff;width:90%;border-radius:10px;padding:10px
 </div>
 </div>
 
-<!-- PRODUCT MODAL -->
+<!-- PRODUCT -->
 <div class="modal" id="modal">
 <div class="modalBox">
 <img id="mImg" style="width:100%;height:180px;object-fit:cover"><br>
@@ -131,15 +142,13 @@ background:#fff;width:90%;border-radius:10px;padding:10px
 </div>
 
 <script>
-/* Firebase */
+
+/* 🔥 Firebase Config */
 const firebaseConfig = {
 apiKey: "XXX",
 authDomain: "XXX",
 databaseURL: "XXX",
 projectId: "XXX",
-storageBucket: "XXX",
-messagingSenderId: "XXX",
-appId: "XXX"
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -149,17 +158,17 @@ const db = firebase.database();
 
 /* عناصر */
 const grid = document.getElementById("grid");
-const cartOverlay = document.getElementById("cartOverlay");
 const cartItems = document.getElementById("cartItems");
-const loginBox = document.getElementById("loginBox");
-const modal = document.getElementById("modal");
-
-const email = document.getElementById("email");
-const pass = document.getElementById("pass");
 const count = document.getElementById("count");
+const totalEl = document.getElementById("total");
 
+/* بيانات */
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
 let currentProduct = null;
-let cart = [];
+
+/* تحميل السلة */
+count.innerText = cart.length;
+renderCart();
 
 /* AUTH */
 function signIn(){
@@ -174,10 +183,6 @@ auth.createUserWithEmailAndPassword(email.value, pass.value)
 .catch(e=>alert(e.message));
 }
 
-auth.onAuthStateChanged(()=>{
-loadProducts();
-});
-
 /* PRODUCTS */
 function loadProducts(){
 db.ref("products").on("value",snap=>{
@@ -191,12 +196,36 @@ grid.innerHTML += `
 <div class="p">
 <div>${p.name}</div>
 <div>${p.price} ريال</div>
+<button onclick='event.stopPropagation();addDirect(${JSON.stringify(p)})'>🛒</button>
 </div>
-</div>
-`;
+</div>`;
 });
 });
 }
+
+auth.onAuthStateChanged(loadProducts);
+
+/* SEARCH */
+search.oninput = function(){
+let val = this.value.toLowerCase();
+
+db.ref("products").once("value",snap=>{
+grid.innerHTML="";
+snap.forEach(s=>{
+let p = s.val();
+if(p.name.toLowerCase().includes(val)){
+grid.innerHTML += `
+<div class="card" onclick='openProduct(${JSON.stringify(p)})'>
+<img src="${p.img}">
+<div class="p">
+<div>${p.name}</div>
+<div>${p.price} ريال</div>
+</div>
+</div>`;
+}
+});
+});
+};
 
 /* PRODUCT */
 function openProduct(p){
@@ -212,37 +241,82 @@ modal.style.display="none";
 }
 
 /* CART */
+function saveCart(){
+localStorage.setItem("cart", JSON.stringify(cart));
+}
+
 function addCart(){
 cart.push(currentProduct);
-count.innerText = cart.length;
-renderCart();
+saveCart();
+updateCart();
 closeModal();
 }
 
-function openCart(){
-cartOverlay.style.display="block";
+function addDirect(p){
+cart.push(p);
+saveCart();
+updateCart();
 }
 
-function closeCart(){
-cartOverlay.style.display="none";
+function removeItem(i){
+cart.splice(i,1);
+saveCart();
+updateCart();
+}
+
+function getTotal(){
+let t=0;
+cart.forEach(p=>t+=Number(p.price));
+return t;
+}
+
+function updateCart(){
+count.innerText = cart.length;
+renderCart();
 }
 
 function renderCart(){
 cartItems.innerHTML="";
-cart.forEach(p=>{
-cartItems.innerHTML += `<p>${p.name} - ${p.price} ريال</p>`;
+cart.forEach((p,i)=>{
+cartItems.innerHTML += `
+<p>${p.name} - ${p.price} ريال
+<button onclick="removeItem(${i})">❌</button>
+</p>`;
 });
+
+totalEl.innerText = "الإجمالي: " + getTotal() + " ريال";
 }
 
-/* LOGIN */
-function openLogin(){
-loginBox.style.display="flex";
+/* ORDER */
+function checkout(){
+
+if(!auth.currentUser){
+alert("سجل دخول أولاً");
+return;
 }
 
-function closeLogin(){
-loginBox.style.display="none";
+db.ref("orders").push({
+user: auth.currentUser.email,
+cart: cart,
+total: getTotal(),
+date: Date.now()
+});
+
+cart = [];
+saveCart();
+updateCart();
+
+alert("تم الطلب ✅");
 }
+
+/* UI */
+function openCart(){cartOverlay.style.display="block";}
+function closeCart(){cartOverlay.style.display="none";}
+function openLogin(){loginBox.style.display="flex";}
+function closeLogin(){loginBox.style.display="none";}
+
 </script>
 
 </body>
 </html>
+```
