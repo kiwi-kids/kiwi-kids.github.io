@@ -12,7 +12,7 @@
 <style>
 body{margin:0;font-family:tahoma;background:#f6f6f6}
 
-/* ===== HEADER ===== */
+/* HEADER */
 header{
 display:flex;align-items:center;gap:10px;
 padding:10px;background:#fff;position:sticky;top:0;
@@ -33,7 +33,7 @@ font-size:12px;display:flex;align-items:center;justify-content:center;
 top:-5px;left:-5px;
 }
 
-/* ===== PRODUCTS ===== */
+/* PRODUCTS */
 .grid{
 display:grid;
 grid-template-columns:repeat(2,1fr);
@@ -49,7 +49,7 @@ box-shadow:0 2px 8px #0001;cursor:pointer
 .card img{width:100%;height:130px;object-fit:cover}
 .card .p{padding:8px}
 
-/* ===== CART ===== */
+/* CART */
 .overlay{
 position:fixed;inset:0;background:#0006;display:none
 }
@@ -59,7 +59,7 @@ position:absolute;right:0;top:0;width:80%;height:100%;
 background:#fff;padding:10px;overflow:auto
 }
 
-/* ===== LOGIN ===== */
+/* LOGIN */
 .login{
 position:fixed;inset:0;background:#0007;
 display:none;align-items:center;justify-content:center
@@ -69,7 +69,7 @@ display:none;align-items:center;justify-content:center
 background:#fff;padding:15px;border-radius:10px;width:90%
 }
 
-/* ===== PRODUCT MODAL ===== */
+/* MODAL */
 .modal{
 position:fixed;inset:0;background:#0007;display:none;
 align-items:center;justify-content:center
@@ -99,7 +99,7 @@ background:#fff;width:90%;border-radius:10px;padding:10px
 <div class="grid" id="grid"></div>
 
 <!-- CART -->
-<div class="overlay" id="cart">
+<div class="overlay" id="cartOverlay">
 <div class="cartBox">
 <h3>السلة</h3>
 <div id="cartItems"></div>
@@ -108,7 +108,7 @@ background:#fff;width:90%;border-radius:10px;padding:10px
 </div>
 
 <!-- LOGIN -->
-<div class="login" id="login">
+<div class="login" id="loginBox">
 <div class="loginBox">
 <h3>تسجيل دخول</h3>
 <input id="email" placeholder="الإيميل"><br><br>
@@ -131,7 +131,7 @@ background:#fff;width:90%;border-radius:10px;padding:10px
 </div>
 
 <script>
-/* ===== FIREBASE CONFIG (ضع بياناتك هنا) ===== */
+/* Firebase */
 const firebaseConfig = {
 apiKey: "XXX",
 authDomain: "XXX",
@@ -146,34 +146,45 @@ firebase.initializeApp(firebaseConfig);
 
 const auth = firebase.auth();
 const db = firebase.database();
-const storage = firebase.storage();
 
-let currentUser = null;
-let cart = [];
+/* عناصر */
+const grid = document.getElementById("grid");
+const cartOverlay = document.getElementById("cartOverlay");
+const cartItems = document.getElementById("cartItems");
+const loginBox = document.getElementById("loginBox");
+const modal = document.getElementById("modal");
+
+const email = document.getElementById("email");
+const pass = document.getElementById("pass");
+const count = document.getElementById("count");
+
 let currentProduct = null;
+let cart = [];
 
-/* ===== AUTH ===== */
+/* AUTH */
 function signIn(){
-auth.signInWithEmailAndPassword(email.value,pass.value)
+auth.signInWithEmailAndPassword(email.value, pass.value)
 .then(()=>alert("تم الدخول"))
+.catch(e=>alert(e.message));
 }
 
 function signUp(){
-auth.createUserWithEmailAndPassword(email.value,pass.value)
+auth.createUserWithEmailAndPassword(email.value, pass.value)
 .then(()=>alert("تم التسجيل"))
+.catch(e=>alert(e.message));
 }
 
-auth.onAuthStateChanged(u=>{
-currentUser = u;
+auth.onAuthStateChanged(()=>{
 loadProducts();
-})
+});
 
-/* ===== PRODUCTS ===== */
+/* PRODUCTS */
 function loadProducts(){
 db.ref("products").on("value",snap=>{
 grid.innerHTML="";
 snap.forEach(s=>{
 let p = s.val();
+
 grid.innerHTML += `
 <div class="card" onclick='openProduct(${JSON.stringify(p)})'>
 <img src="${p.img}">
@@ -187,7 +198,7 @@ grid.innerHTML += `
 });
 }
 
-/* ===== PRODUCT MODAL ===== */
+/* PRODUCT */
 function openProduct(p){
 currentProduct = p;
 modal.style.display="flex";
@@ -200,27 +211,37 @@ function closeModal(){
 modal.style.display="none";
 }
 
+/* CART */
 function addCart(){
 cart.push(currentProduct);
-document.getElementById("count").innerText = cart.length;
+count.innerText = cart.length;
 renderCart();
 closeModal();
 }
 
-/* ===== CART ===== */
-function openCart(){cart.style.display="block"}
-function closeCart(){cart.style.display="none"}
+function openCart(){
+cartOverlay.style.display="block";
+}
+
+function closeCart(){
+cartOverlay.style.display="none";
+}
 
 function renderCart(){
 cartItems.innerHTML="";
 cart.forEach(p=>{
-cartItems.innerHTML += `<p>${p.name} - ${p.price}</p>`;
+cartItems.innerHTML += `<p>${p.name} - ${p.price} ريال</p>`;
 });
 }
 
-/* ===== LOGIN UI ===== */
-function openLogin(){login.style.display="flex"}
-function closeLogin(){login.style.display="none"}
+/* LOGIN */
+function openLogin(){
+loginBox.style.display="flex";
+}
+
+function closeLogin(){
+loginBox.style.display="none";
+}
 </script>
 
 </body>
