@@ -1,3 +1,13 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>Kiwi Kids Store</title>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+
 <style>
 body{
   margin:0;
@@ -5,7 +15,7 @@ body{
   background:#f4f6f8;
 }
 
-/* 🔥 الهيدر المتحرك */
+/* 🔥 هيدر احترافي */
 .header{
   position:sticky;
   top:0;
@@ -13,27 +23,21 @@ body{
   display:flex;
   justify-content:space-between;
   padding:12px 15px;
-  background:rgba(255,255,255,0.8);
+  background:rgba(255,255,255,0.85);
   backdrop-filter:blur(10px);
   box-shadow:0 5px 20px rgba(0,0,0,0.08);
-  animation:slideDown 0.6s ease;
+  animation:down 0.5s ease;
 }
 
-@keyframes slideDown{
+@keyframes down{
   from{transform:translateY(-100%)}
   to{transform:translateY(0)}
 }
 
-/* 🛒 زر السلة */
+/* 🛒 السلة */
 .cart{
   position:relative;
   cursor:pointer;
-  animation:pop 1s infinite alternate;
-}
-
-@keyframes pop{
-  from{transform:scale(1)}
-  to{transform:scale(1.1)}
 }
 
 .cart span{
@@ -45,6 +49,29 @@ body{
   font-size:12px;
   padding:2px 6px;
   border-radius:50%;
+  animation:pop 1s infinite alternate;
+}
+
+@keyframes pop{
+  from{transform:scale(1)}
+  to{transform:scale(1.2)}
+}
+
+/* ➕ إضافة منتج */
+.addBox{
+  background:white;
+  margin:10px;
+  padding:10px;
+  border-radius:15px;
+  box-shadow:0 3px 10px rgba(0,0,0,0.08);
+}
+
+.addBox input{
+  width:100%;
+  padding:8px;
+  margin:5px 0;
+  border-radius:10px;
+  border:1px solid #ddd;
 }
 
 /* 📦 المنتجات */
@@ -66,23 +93,15 @@ body{
 }
 
 @keyframes fadeUp{
-  from{
-    opacity:0;
-    transform:translateY(20px);
-  }
-  to{
-    opacity:1;
-    transform:translateY(0);
-  }
+  from{opacity:0;transform:translateY(20px)}
+  to{opacity:1;transform:translateY(0)}
 }
 
-/* 🔥 Hover قوي */
 .product:hover{
   transform:translateY(-8px) scale(1.02);
   box-shadow:0 10px 25px rgba(0,0,0,0.15);
 }
 
-/* صورة المنتج */
 .product img{
   width:100%;
   height:170px;
@@ -94,10 +113,7 @@ body{
   transform:scale(1.05);
 }
 
-/* المحتوى */
-.info{
-  padding:10px;
-}
+.info{padding:10px}
 
 .price{
   color:#00b894;
@@ -131,10 +147,163 @@ button:hover{
   padding:15px;
   border-radius:25px 25px 0 0;
   box-shadow:0 -10px 30px rgba(0,0,0,0.2);
-  transition:0.4s cubic-bezier(.25,.8,.25,1);
+  transition:0.4s;
 }
 
 .cartBox.active{
   bottom:0;
 }
 </style>
+</head>
+
+<body>
+
+<div class="header">
+  <div>Kiwi Kids</div>
+  <div class="cart" onclick="toggleCart()">
+    🛒 <span id="count">0</span>
+  </div>
+</div>
+
+<!-- ➕ إضافة منتج -->
+<div class="addBox">
+  <input id="name" placeholder="اسم المنتج">
+  <input id="price" placeholder="السعر">
+  <input type="file" id="imageFile">
+  <button onclick="addProduct()">رفع منتج</button>
+</div>
+
+<!-- 📦 المنتجات -->
+<div class="products" id="products"></div>
+
+<!-- 🛒 السلة -->
+<div class="cartBox" id="cartBox">
+  <h3>السلة</h3>
+  <div id="cartItems"></div>
+  <button onclick="sendOrder()">إرسال الطلب</button>
+</div>
+
+<script>
+
+// 🔥 Firebase (حط بياناتك هنا)
+const firebaseConfig = {
+  apiKey: "YOUR_KEY",
+  authDomain: "YOUR_DOMAIN",
+  databaseURL: "https://kiwi-kids-store-a10c3-default-rtdb.firebaseio.com",
+  projectId: "kiwi-kids-store-a10c3",
+  storageBucket: "kiwi-kids-store-a10c3.appspot.com"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const db = firebase.database();
+const storage = firebase.storage();
+
+let cart = [];
+
+/* 📦 عرض المنتجات */
+db.ref("products").on("value", snap=>{
+  const data = snap.val();
+  const box = document.getElementById("products");
+
+  box.innerHTML = "";
+
+  if(!data){
+    box.innerHTML = "<p style='text-align:center'>لا توجد منتجات</p>";
+    return;
+  }
+
+  Object.keys(data).forEach(k=>{
+    let p = data[k];
+
+    box.innerHTML += `
+      <div class="product">
+        <img src="${p.image}">
+        <div class="info">
+          <h4>${p.name}</h4>
+          <div class="price">${p.price} ريال</div>
+          <button onclick="addToCart('${p.name}',${p.price})">إضافة</button>
+        </div>
+      </div>
+    `;
+  });
+});
+
+/* 📸 رفع صورة + إضافة منتج */
+function addProduct(){
+  let name = document.getElementById("name").value;
+  let price = document.getElementById("price").value;
+  let file = document.getElementById("imageFile").files[0];
+
+  if(!name || !price || !file){
+    alert("أدخل كل البيانات");
+    return;
+  }
+
+  let upload = storage.ref("products/" + file.name).put(file);
+
+  upload.on("state_changed", null, null, ()=>{
+
+    upload.snapshot.ref.getDownloadURL().then(url=>{
+
+      db.ref("products").push({
+        name,
+        price,
+        image: url
+      });
+
+      alert("تم إضافة المنتج 🎉");
+    });
+
+  });
+}
+
+/* 🛒 السلة */
+function addToCart(name,price){
+  cart.push({name,price});
+  document.getElementById("count").innerText = cart.length;
+  renderCart();
+}
+
+function renderCart(){
+  let box = document.getElementById("cartItems");
+  box.innerHTML = "";
+
+  cart.forEach((p,i)=>{
+    box.innerHTML += `
+      <div>
+        ${p.name} - ${p.price} ريال
+        <span onclick="cart.splice(${i},1);renderCart();"> ❌</span>
+      </div>
+    `;
+  });
+}
+
+/* 📦 إرسال الطلب */
+function sendOrder(){
+  if(cart.length == 0){
+    alert("السلة فارغة");
+    return;
+  }
+
+  db.ref("orders").push({
+    items: cart,
+    time: Date.now()
+  });
+
+  cart = [];
+  document.getElementById("count").innerText = 0;
+  renderCart();
+
+  alert("تم إرسال الطلب 🚀");
+}
+
+/* 🛒 فتح السلة */
+function toggleCart(){
+  document.getElementById("cartBox").classList.toggle("active");
+}
+
+</script>
+
+</body>
+</html>
